@@ -1,5 +1,8 @@
 package com.example.carduino.services;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,15 +11,26 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationRequest;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
+import android.renderscript.RenderScript;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.carduino.R;
 import com.example.carduino.arduinolistener.Constants;
@@ -29,6 +43,7 @@ import com.example.carduino.carduino.CarduinoActivity;
 import com.example.carduino.receivers.ArduinoMessageExecutorInterface;
 import com.example.carduino.receivers.canbus.factory.CanbusActions;
 import com.example.carduino.shared.MyApplication;
+import com.example.carduino.shared.models.AppToOpen;
 import com.example.carduino.shared.models.ArduinoMessage;
 import com.example.carduino.shared.singletons.AppSwitchSingleton;
 import com.example.carduino.shared.singletons.ArduinoSingleton;
@@ -139,6 +154,29 @@ public class ArduinoService extends Service implements SerialListener {
 
     private Thread connectThread;
 
+    private LocationManager locationManager;
+
+    private LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            // Handle location updates here
+            LoggerUtilities.logMessage("Location changed: " + location.toString());
+            Toast.makeText(getApplicationContext(), "Location changed: " + location, Toast.LENGTH_LONG).show();
+        }
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+        @Override
+        public void onProviderEnabled(String provider) {
+            LoggerUtilities.logMessage("Provider enabled: " + provider);
+        }
+        @Override
+        public void onProviderDisabled(String provider) {
+            LoggerUtilities.logMessage("Provider disabled: " + provider);
+        }
+    };
+
+    private static final Integer LOCATION_INTERVAL = 1000;
+
     public ArduinoService() {
         binder = new SerialBinder();
 
@@ -162,6 +200,46 @@ public class ArduinoService extends Service implements SerialListener {
         buffer = new StringBuffer();
 
         ArduinoSingleton.getInstance().setArduinoService(this);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+//        LoggerUtilities.logMessage("ArduinoService::onCreate()", "onCreate()");
+        BroadcastReceiver screenOnReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                LoggerUtilities.logMessage("ArduinoService screenOnReceiver::onCreate()", "screen on");
+
+                ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+                // The first in the list of RunningTasks is always the foreground task.
+                ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
+                String foregroundTaskPackageName = foregroundTaskInfo.topActivity.getPackageName();
+//                PackageManager pm = context.getPackageManager();
+//                PackageInfo foregroundAppPackageInfo = null;
+//                try {
+//                    foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
+//                } catch (PackageManager.NameNotFoundException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                String foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
+//
+//                if(foregroundTaskAppName.equals("Carduino")) {
+//                    LoggerUtilities.logMessage("ArduinoService screenOnReceiver::onCreate()", "carduino app in foreground");
+//                }
+                LoggerUtilities.logMessage("ArduinoService screenOnReceiver::onCreate()", "AppToOpen.CARDUINO.getPackageName().equals(foregroundTaskPackageName) " + (AppToOpen.CARDUINO.getPackageName().equals(foregroundTaskPackageName) ? "true" : "false") + " ((MyApplication) getApplicationContext()).isShowingApplication() " + (((MyApplication) getApplicationContext()).isShowingApplication() ? "true" : "false"));
+                Toast.makeText(context, "AppToOpen.CARDUINO.getPackageName().equals(foregroundTaskPackageName) " + (AppToOpen.CARDUINO.getPackageName().equals(foregroundTaskPackageName) ? "true" : "false") + " ((MyApplication) getApplicationContext()).isShowingApplication() " + (((MyApplication) getApplicationContext()).isShowingApplication() ? "true" : "false"), Toast.LENGTH_LONG).show();
+                if(!AppToOpen.CARDUINO.getPackageName().equals(foregroundTaskPackageName)) {
+                    Intent launchIntent = getPackageManager().getLaunchIntentForPackage(AppToOpen.CARDUINO.getPackageName());
+                    if (launchIntent != null) {
+                        startActivity(launchIntent); //null pointer check in case package name was not found
+                    }
+                }
+            }
+        };
+        IntentFilter screenOnFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        registerReceiver(screenOnReceiver, screenOnFilter);
     }
 
     @Nullable
@@ -303,6 +381,8 @@ public class ArduinoService extends Service implements SerialListener {
             if(!isConnected()) {
                 startConnectThread();
             }
+
+            this.getLocation();
 
             return Service.START_STICKY_COMPATIBILITY;
         }
@@ -496,5 +576,12 @@ public class ArduinoService extends Service implements SerialListener {
 
     public Boolean isConnected() {
         return connected == CarduinoActivity.Connected.True;
+    }
+
+    private void getLocation() {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ContextCompat.checkSelfPermission(this,  ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, 0, locationListener, Looper.getMainLooper());
+        }
     }
 }
