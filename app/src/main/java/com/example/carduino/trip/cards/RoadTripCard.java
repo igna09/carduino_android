@@ -23,13 +23,15 @@ public class RoadTripCard extends TripCard {
     public void updateCard(TripValue value) {
         RoadInfo roadInfo = SharedDataSingleton.getInstance().getRoadInfo();
 
-        TextView nameTextView = getCardView().findViewById(R.id.name);
-        nameTextView.setText(roadInfo.getName() != null ? roadInfo.getName() : "N/A");
-        nameTextView.requestLayout();
+        if(roadInfo != null) {
+            TextView nameTextView = getCardView().findViewById(R.id.name);
+            nameTextView.setText(roadInfo.getName() != null ? roadInfo.getName() : "");
+            nameTextView.requestLayout();
 
-        TextView limitTextView = getCardView().findViewById(R.id.limit);
-        limitTextView.setText(roadInfo.getLimit() != null ? roadInfo.getLimit().toString() : "N/A");
-        limitTextView.requestLayout();
+            TextView limitTextView = getCardView().findViewById(R.id.limit);
+            limitTextView.setText(roadInfo.getLimit() != null ? roadInfo.getLimit().toString() : "");
+            limitTextView.requestLayout();
+        }
     }
 
     @Override
