@@ -1,7 +1,11 @@
 package com.example.carduino.shared.models.carstatus.propertychangelisteners;
 
+import android.media.AudioManager;
+import android.media.ToneGenerator;
+
 import com.example.carduino.shared.models.carstatus.values.KmhSpeed;
 import com.example.carduino.shared.models.trip.tripvalue.TripValueEnum;
+import com.example.carduino.shared.singletons.SharedDataSingleton;
 import com.example.carduino.shared.singletons.TripSingleton;
 import com.example.carduino.shared.utilities.LoggerUtilities;
 
@@ -42,6 +46,11 @@ public class SpeedCarStatusPropertyChangeListener extends PropertyChangeListener
             } else {
                 TripSingleton.getInstance().getTrip().getTripValues().get(TripValueEnum.DISTANCE).setLastReading(new Date());
             }
+        }
+
+        if(SharedDataSingleton.getInstance().getRoadLimit() > newValue.getValue()) {
+            LoggerUtilities.logMessage("limit of speed reached, speed: " + newValue.getValue() + ", limit: " + SharedDataSingleton.getInstance().getRoadLimit());
+            (new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)).startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 500);
         }
     }
 }

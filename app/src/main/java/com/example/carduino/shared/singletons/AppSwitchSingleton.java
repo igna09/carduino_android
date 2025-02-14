@@ -14,6 +14,7 @@ public class AppSwitchSingleton {
     private AppSwitchSingleton(){
         nextPackageIndexToOpen = 0;
     }
+
     public static AppSwitchSingleton getInstance()
     {
         if (instance == null)

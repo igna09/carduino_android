@@ -45,6 +45,8 @@ import com.example.carduino.receivers.canbus.factory.CanbusActions;
 import com.example.carduino.shared.MyApplication;
 import com.example.carduino.shared.models.AppToOpen;
 import com.example.carduino.shared.models.ArduinoMessage;
+import com.example.carduino.shared.models.carstatus.CarStatusFactory;
+import com.example.carduino.shared.models.carstatus.values.Value;
 import com.example.carduino.shared.singletons.AppSwitchSingleton;
 import com.example.carduino.shared.singletons.ArduinoSingleton;
 import com.example.carduino.shared.singletons.CarStatusSingleton;
@@ -61,8 +63,15 @@ import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
+
+import me.aflak.arduino.Arduino;
 
 public class ArduinoService extends Service implements SerialListener {
     private class ArduinoRunnable implements Runnable {
@@ -156,26 +165,9 @@ public class ArduinoService extends Service implements SerialListener {
 
     private LocationManager locationManager;
 
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            // Handle location updates here
-            LoggerUtilities.logMessage("Location changed: " + location.toString());
-            Toast.makeText(getApplicationContext(), "Location changed: " + location, Toast.LENGTH_LONG).show();
-        }
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
-        @Override
-        public void onProviderEnabled(String provider) {
-            LoggerUtilities.logMessage("Provider enabled: " + provider);
-        }
-        @Override
-        public void onProviderDisabled(String provider) {
-            LoggerUtilities.logMessage("Provider disabled: " + provider);
-        }
-    };
+    private LocationListener locationListener;
 
-    private static final Integer LOCATION_INTERVAL = 1000;
+    private static final Integer LOCATION_INTERVAL = 5000;
 
     public ArduinoService() {
         binder = new SerialBinder();
@@ -183,10 +175,10 @@ public class ArduinoService extends Service implements SerialListener {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-            if(Constants.INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
-                Boolean granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
-                attemptConnect(deviceIdToConnect, granted);
-            }
+                if(Constants.INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
+                    Boolean granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                    attemptConnect(deviceIdToConnect, granted);
+                }
             }
         };
 
@@ -381,6 +373,33 @@ public class ArduinoService extends Service implements SerialListener {
             if(!isConnected()) {
                 startConnectThread();
             }
+
+            this.locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    // Handle location updates here
+                    LoggerUtilities.logMessage("Location changed: " + location.toString());
+                    Toast.makeText(getApplicationContext(), "Location changed: " + location, Toast.LENGTH_LONG).show();
+
+                    // TEMPORARY: AS CAR CANBUS IS NOT READING
+                    Value value = CarStatusFactory.getCarStatusValue("SPEED", Float.valueOf(location.getSpeed() * 3.6f).toString());
+                    if (value != null) {
+                        CarStatusSingleton.getInstance().getCarStatus().putValue(value);
+                    }
+
+                    ArduinoService.this.fetchSpeedLimit(location.getLatitude(), location.getLongitude());
+                }
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+                @Override
+                public void onProviderEnabled(String provider) {
+                    LoggerUtilities.logMessage("Provider enabled: " + provider);
+                }
+                @Override
+                public void onProviderDisabled(String provider) {
+                    LoggerUtilities.logMessage("Provider disabled: " + provider);
+                }
+            };
 
             this.getLocation();
 
@@ -583,5 +602,38 @@ public class ArduinoService extends Service implements SerialListener {
         if (ContextCompat.checkSelfPermission(this,  ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, 0, locationListener, Looper.getMainLooper());
         }
+    }
+
+    private void fetchSpeedLimit(double latitude, double longitude) {
+        new Thread(() -> {
+            try {
+                String urlString = "https://overpass-api.de/api/interpreter?data=[out:json];way[\"maxspeed\"](around:50," + latitude + "," + longitude + ");out;";
+                URL url = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.connect();
+
+                Scanner scanner = new Scanner(url.openStream());
+                StringBuilder response = new StringBuilder();
+                while (scanner.hasNext()) {
+                    response.append(scanner.nextLine());
+                }
+                scanner.close();
+
+                JSONObject jsonObject = new JSONObject(response.toString());
+                JSONArray elements = jsonObject.getJSONArray("elements");
+                String speedLimit = null;
+                if (elements.length() > 0) {
+                    speedLimit = elements.getJSONObject(0).getJSONObject("tags").optString("maxspeed", null);
+                }
+                if(speedLimit != null) {
+                    SharedDataSingleton.getInstance().setRoadLimit(Float.valueOf(speedLimit));
+                }
+
+                //runOnUiThread(() -> speedLimitTextView.setText("Limite di velocità: " + speedLimit + " km/h"));
+            } catch (Exception e) {
+                Log.e("SpeedLimit", "Errore nel recupero del limite di velocità", e);
+            }
+        }).start();
     }
 }

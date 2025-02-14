@@ -15,6 +15,7 @@ public class SharedDataSingleton {
     private CircularArrayList<Integer> minMaxluminanceReadings;
     private CircularArrayList<Integer> avgluminanceReadings;
     private Integer maxDisplayBrightness;
+    private Float roadLimit;
 
     private SharedDataSingleton(){
         advancedMode = false;
@@ -68,5 +69,13 @@ public class SharedDataSingleton {
 
     public CircularArrayList<Integer> getAvgluminanceReadings() {
         return avgluminanceReadings;
+    }
+
+    public Float getRoadLimit() {
+        return roadLimit;
+    }
+
+    public void setRoadLimit(Float roadLimit) {
+        this.roadLimit = roadLimit;
     }
 }
