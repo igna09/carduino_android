@@ -89,12 +89,10 @@ public class Trip extends Fragment {
                 if(getActivity() != null) {
                     getActivity().runOnUiThread(() -> cards.forEach(card -> {
                         TripValue tripValue = TripSingleton.getInstance().getTrip().getTripValues().get(card.getTripValueEnum());
-                        if(tripValue != null) {
-                            card.updateCard(tripValue);
-                        }
+                        card.updateCard(tripValue);
                     }));
                     try {
-                        Thread.sleep(10 * 1000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         LoggerUtilities.logMessage("Trip Fragment", "refreshThread interrupted while sleeping");
                     }

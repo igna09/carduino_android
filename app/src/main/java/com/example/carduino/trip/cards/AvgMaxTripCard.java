@@ -25,6 +25,8 @@ public class AvgMaxTripCard extends TripCard {
 
     @Override
     public void updateCard(TripValue value) {
+        if(value == null)
+            return;
         TextView avgTextView = getCardView().findViewById(R.id.avg_value);
         avgTextView.setText(getTransformedValue(value.getAverage() != null ? value.getAverage().toString() : null));
         avgTextView.requestLayout();

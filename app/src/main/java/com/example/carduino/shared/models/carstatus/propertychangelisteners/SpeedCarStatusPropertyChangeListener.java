@@ -3,8 +3,10 @@ package com.example.carduino.shared.models.carstatus.propertychangelisteners;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 
+import com.example.carduino.settings.SettingsEnum;
 import com.example.carduino.shared.models.carstatus.values.KmhSpeed;
 import com.example.carduino.shared.models.trip.tripvalue.TripValueEnum;
+import com.example.carduino.shared.singletons.SettingsSingleton;
 import com.example.carduino.shared.singletons.SharedDataSingleton;
 import com.example.carduino.shared.singletons.TripSingleton;
 import com.example.carduino.shared.utilities.LoggerUtilities;
@@ -48,8 +50,13 @@ public class SpeedCarStatusPropertyChangeListener extends PropertyChangeListener
             }
         }
 
-        if(SharedDataSingleton.getInstance().getRoadLimit() > newValue.getValue()) {
-            LoggerUtilities.logMessage("limit of speed reached, speed: " + newValue.getValue() + ", limit: " + SharedDataSingleton.getInstance().getRoadLimit());
+        if(
+            (Boolean) SettingsSingleton.getInstance().getSettings().get(SettingsEnum.SPEED_LIMIT_ALARM.name()).getValue()
+            && SharedDataSingleton.getInstance().getRoadInfo().getLimit() != null
+            && newValue.getValue() != null
+            && newValue.getValue() > SharedDataSingleton.getInstance().getRoadInfo().getLimit()
+        ) {
+            LoggerUtilities.logMessage("limit of speed reached, speed: " + newValue.getValue() + ", limit: " + SharedDataSingleton.getInstance().getRoadInfo().getLimit());
             (new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)).startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 500);
         }
     }

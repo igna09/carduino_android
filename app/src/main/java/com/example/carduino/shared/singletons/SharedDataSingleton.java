@@ -1,6 +1,7 @@
 package com.example.carduino.shared.singletons;
 
 import com.example.carduino.settings.settingfactory.Setting;
+import com.example.carduino.shared.models.RoadInfo;
 import com.example.carduino.shared.utilities.CircularArrayList;
 
 import java.beans.PropertyChangeListener;
@@ -15,7 +16,7 @@ public class SharedDataSingleton {
     private CircularArrayList<Integer> minMaxluminanceReadings;
     private CircularArrayList<Integer> avgluminanceReadings;
     private Integer maxDisplayBrightness;
-    private Float roadLimit;
+    private RoadInfo roadInfo;
 
     private SharedDataSingleton(){
         advancedMode = false;
@@ -23,6 +24,7 @@ public class SharedDataSingleton {
         avgluminanceReadings = new CircularArrayList<>(5); // luminance reading every second so last 5 seconds readings
         minMaxluminanceReadings = new CircularArrayList<>(60); // luminance reading every second so last 1 minutes readings
         maxDisplayBrightness = null;
+        roadInfo = new RoadInfo();
     }
     public static SharedDataSingleton getInstance()
     {
@@ -71,11 +73,11 @@ public class SharedDataSingleton {
         return avgluminanceReadings;
     }
 
-    public Float getRoadLimit() {
-        return roadLimit;
+    public RoadInfo getRoadInfo() {
+        return roadInfo;
     }
 
-    public void setRoadLimit(Float roadLimit) {
-        this.roadLimit = roadLimit;
+    public void setRoadInfo(RoadInfo roadInfo) {
+        this.roadInfo = roadInfo;
     }
 }
