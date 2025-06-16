@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.renderscript.RenderScript;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;

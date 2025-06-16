@@ -17,6 +17,7 @@ import com.example.carduino.settings.settingfactory.Setting;
 import com.example.carduino.settings.settingviewfactory.SettingViewFactory;
 import com.example.carduino.settings.settingviewfactory.SettingViewWrapper;
 import com.example.carduino.shared.models.ArduinoMessage;
+import com.example.carduino.shared.models.Event;
 import com.example.carduino.shared.models.carstatus.propertychangelisteners.PropertyChangeListener;
 import com.example.carduino.shared.singletons.SettingsSingleton;
 import com.example.carduino.shared.utilities.ArduinoMessageUtilities;
@@ -88,7 +89,7 @@ public class Settings extends Fragment {
         };
         SettingsSingleton.getInstance().addPropertyChangeListener(pcl);
 
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.GET_SETTINGS, "", "")); // start reading all node settings
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("GET_SETTINGS").getId().toString(), "")); // start reading all node settings
     }
 
     private void renderViews() {

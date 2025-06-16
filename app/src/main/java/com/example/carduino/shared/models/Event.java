@@ -8,7 +8,8 @@ public enum Event implements BaseEnum {
     RESET_WEBAPP(0x0C),
     BLE_PAIRING_CODE(0x0D),
     RESTART(0x0E),
-    SWC_PAIR(0x0F);
+    SWC_PAIR(0x0F),
+    GET_SETTINGS(0x10);
 
     private Integer id;
 
