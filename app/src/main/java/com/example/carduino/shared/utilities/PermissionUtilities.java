@@ -28,6 +28,9 @@ public class PermissionUtilities {
     };
 
     public static boolean haveAllPermissions() {
+        if(ContextsSingleton.getInstance().getApplicationContext() == null) {
+            return false;
+        }
         Boolean allPermissions = Arrays.stream(permissions).allMatch((el) -> {
             int checkVal = ContextsSingleton.getInstance().getApplicationContext().checkCallingOrSelfPermission(el);
             return checkVal == PackageManager.PERMISSION_GRANTED;

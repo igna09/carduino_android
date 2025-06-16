@@ -11,7 +11,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -19,16 +18,15 @@ import android.hardware.usb.UsbManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationRequest;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
-import android.renderscript.RenderScript;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -65,14 +63,13 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
-
-import me.aflak.arduino.Arduino;
 
 public class ArduinoService extends Service implements SerialListener {
     private class ArduinoRunnable implements Runnable {
@@ -379,16 +376,16 @@ public class ArduinoService extends Service implements SerialListener {
                 @Override
                 public void onLocationChanged(Location location) {
                     // Handle location updates here
-                    LoggerUtilities.logMessage("Location changed: " + location.toString());
-                    Toast.makeText(getApplicationContext(), "Location changed: " + location, Toast.LENGTH_LONG).show();
+//                    LoggerUtilities.logMessage("Location changed: " + location.toString());
+//                    Toast.makeText(getApplicationContext(), "Location changed: " + location, Toast.LENGTH_LONG).show();
 
                     // TEMPORARY: AS CAR CANBUS IS NOT READING
-                    Value value = CarStatusFactory.getCarStatusValue("SPEED", Float.valueOf(location.getSpeed() * 3.6f).toString());
+                    Value value = CarStatusFactory.getCarStatusValue("SPEED", Integer.valueOf(Math.round(location.getSpeed() * 3.6f)).toString());
                     if (value != null) {
                         CarStatusSingleton.getInstance().getCarStatus().putValue(value);
                     }
 
-                    ArduinoService.this.fetchSpeedLimit(location.getLatitude(), location.getLongitude());
+                    ArduinoService.this.fetchRoadInfo(location.getLatitude(), location.getLongitude());
                 }
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -605,36 +602,42 @@ public class ArduinoService extends Service implements SerialListener {
         }
     }
 
-    private void fetchSpeedLimit(double latitude, double longitude) {
+    private void fetchRoadInfo(double latitude, double longitude) {
         new Thread(() -> {
             try {
-                String urlString = "https://overpass-api.de/api/interpreter?data=[out:json];way[\"maxspeed\"](around:50," + latitude + "," + longitude + ");out;";
-                URL url = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.connect();
-
-                Scanner scanner = new Scanner(url.openStream());
-                StringBuilder response = new StringBuilder();
-                while (scanner.hasNext()) {
-                    response.append(scanner.nextLine());
-                }
-                scanner.close();
-
-                JSONObject jsonObject = new JSONObject(response.toString());
-                JSONArray elements = jsonObject.getJSONArray("elements");
-                String speedLimit = null;
+                JSONArray elements = getJsonArray(latitude, longitude);
                 if (elements.length() > 0) {
-                    speedLimit = elements.getJSONObject(0).getJSONObject("tags").optString("maxspeed", null);
-                }
-                if(speedLimit != null) {
-                    SharedDataSingleton.getInstance().setRoadLimit(Float.valueOf(speedLimit));
-                }
+                    String speedLimit = elements.getJSONObject(0).getJSONObject("tags").optString("maxspeed", null);
+                    SharedDataSingleton.getInstance().getRoadInfo().setLimit(Integer.valueOf(speedLimit));
 
-                //runOnUiThread(() -> speedLimitTextView.setText("Limite di velocità: " + speedLimit + " km/h"));
+                    String roadName = elements.getJSONObject(0).getJSONObject("tags").optString("name", null);
+                    SharedDataSingleton.getInstance().getRoadInfo().setName(roadName);
+
+                    LoggerUtilities.logMessage("Road", SharedDataSingleton.getInstance().getRoadInfo().toString());
+                }
             } catch (Exception e) {
-                Log.e("SpeedLimit", "Errore nel recupero del limite di velocità", e);
+                LoggerUtilities.logException(e);
+                LoggerUtilities.logMessage("SpeedLimit", "Errore nel recupero del limite di velocità");
             }
         }).start();
+    }
+
+    private static @NonNull JSONArray getJsonArray(double latitude, double longitude) throws IOException, JSONException {
+        String urlString = "https://overpass-api.de/api/interpreter?data=[out:json];way[\"maxspeed\"][\"name\"](around:50," + latitude + "," + longitude + ");out;";
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+
+        Scanner scanner = new Scanner(url.openStream());
+        StringBuilder response = new StringBuilder();
+        while (scanner.hasNext()) {
+            response.append(scanner.nextLine());
+        }
+        scanner.close();
+
+        JSONObject jsonObject = new JSONObject(response.toString());
+        JSONArray elements = jsonObject.getJSONArray("elements");
+        return elements;
     }
 }

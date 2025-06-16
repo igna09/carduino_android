@@ -7,39 +7,39 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 
 import com.example.carduino.R;
+import com.example.carduino.shared.models.RoadInfo;
 import com.example.carduino.shared.models.carstatus.CarStatusEnum;
 import com.example.carduino.shared.models.carstatus.values.Value;
 import com.example.carduino.shared.models.trip.tripvalue.TripValue;
+import com.example.carduino.shared.singletons.SharedDataSingleton;
 
-public class DistanceTripCard extends TripCard {
+public class RoadTripCard extends TripCard {
     private String unit;
 
     @Override
-    public void init() {
-        try {
-            this.unit = ((Value) CarStatusEnum.valueOf(getTripValueEnum().name()).getType().newInstance()).getUnit();
-        } catch (IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
+    public void init() {}
+
+    @Override
+    public void updateCard(TripValue value) {
+        RoadInfo roadInfo = SharedDataSingleton.getInstance().getRoadInfo();
+
+        if(roadInfo != null) {
+            TextView nameTextView = getCardView().findViewById(R.id.name);
+            nameTextView.setText(roadInfo.getName() != null ? roadInfo.getName() : "");
+            nameTextView.requestLayout();
+
+            TextView limitTextView = getCardView().findViewById(R.id.limit);
+            limitTextView.setText(roadInfo.getLimit() != null ? roadInfo.getLimit().toString() : "");
+            limitTextView.requestLayout();
         }
     }
 
     @Override
-    public void updateCard(TripValue value) {
-        if(value == null)
-            return;
-        TextView avgTextView = getCardView().findViewById(R.id.value);
-        avgTextView.setText(getTransformedValue(value.getSum() != null ? value.getSum().toString() : null));
-        avgTextView.requestLayout();
-    }
-
-    @Override
     public void createCard(Context context) {
-        CardView v = (CardView) LayoutInflater.from(context).inflate(R.layout.card_trip_distance, null);
+        CardView v = (CardView) LayoutInflater.from(context).inflate(R.layout.card_trip_road, null);
 
         TextView title = v.findViewById(R.id.title);
         title.setText(getTitle());
-        TextView avgUnit = v.findViewById(R.id.unit);
-        avgUnit.setText(this.unit);
 
         this.setCardView(v);
     }
