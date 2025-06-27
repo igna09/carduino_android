@@ -382,9 +382,9 @@ public class ArduinoService extends Service implements SerialListener {
 
                     // TEMPORARY: AS CAR CANBUS IS NOT READING
                     Value value = CarStatusFactory.getCarStatusValue("SPEED", Integer.valueOf(Math.round(location.getSpeed() * 3.6f)).toString());
-                    if (value != null) {
-                        CarStatusSingleton.getInstance().getCarStatus().putValue(value);
-                    }
+//                    if (value != null) {
+//                        CarStatusSingleton.getInstance().getCarStatus().putValue(value);
+//                    }
 
                     ArduinoService.this.fetchRoadInfo(location.getLatitude(), location.getLongitude());
                 }
