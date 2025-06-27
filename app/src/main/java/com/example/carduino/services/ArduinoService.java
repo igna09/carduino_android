@@ -113,7 +113,7 @@ public class ArduinoService extends Service implements SerialListener {
 //                    if(counter >= 5)
 //                        onArduinoMessage("CAR_STATUS;ENGINE_RPM;" + getIntegerRandomNumber(900, 4000));
 //                    if(counter % 5 == 0) {
-//                        if(counter % 2 == 0) {
+//                        if(counter % 2 == 0)  {
 //                            onArduinoMessage("MEDIA_CONTROL;VOLUME_UP;0;");
 //                        } else {
 //                            onArduinoMessage("MEDIA_CONTROL;VOLUME_DOWN;0;");
@@ -123,8 +123,9 @@ public class ArduinoService extends Service implements SerialListener {
 //                    if(counter % 15 == 0) {
 //                        onArduinoMessage("MEDIA_CONTROL;LONG_PRESS;0;");
 //                    }
-//                    if(counter == 10) {
+//                    if(counter % 15 == 0) {
 //                        onArduinoMessage("EVENT;BLE_PAIRING_CODE;123456;");
+                        //onArduinoMessage("READ_SETTING;SEND_ALL_MESSAGES_TO_RADIO;FALSE;");
 //                    }
                     Thread.sleep(1000);
                     counter++;

@@ -29,7 +29,7 @@ public enum SettingsEnum implements BaseEnum {
         SharedDataSingleton.getInstance().setAdvancedMode((Boolean) value);
     }),
     SWC_PAIR(0x03, "SWC pairing", BooleanSetting.class, SettingType.APP, ButtonSettingViewWrapper.class, (value) -> {
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("SWC_PAIR").getId().toString(), "0"));
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("SWC_PAIR").getId().toString(), "2"));
     }),
     OTA_MODE(0x01, "Enter OTA mode", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("OTA_MODE").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
@@ -41,7 +41,7 @@ public enum SettingsEnum implements BaseEnum {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("RESTART").getId().toString(), "-1"));
     }),
     SEND_ALL_MESSAGES_TO_RADIO(0x08, "Send all messages to radio", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("AUTO_CLOSE_REARVIEW_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("SEND_ALL_MESSAGES_TO_RADIO").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     });
 
     public enum SettingType {

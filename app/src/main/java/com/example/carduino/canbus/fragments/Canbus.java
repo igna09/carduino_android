@@ -3,7 +3,9 @@ package com.example.carduino.canbus.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,7 @@ public class Canbus extends Fragment {
     private EditText editText;
     private Button sendBtn;
     private PropertyChangeListener pcl;
+    private Boolean firstScroll = true;
 
     @Nullable
     @Override
@@ -74,19 +77,40 @@ public class Canbus extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                Boolean shouldScroll = displayTextView.getLayout().getLineTop(displayTextView.getLineCount()) == displayTextView.getHeight();
+                Layout layout = displayTextView.getLayout();
+                if(layout != null) {
+                    int scrollY = displayTextView.getScrollY();
+                    int contentHeight = layout.getHeight();
+                    int textHeight = layout.getLineTop(displayTextView.getLineCount());
+                    int viewHeight = displayTextView.getHeight();
 
-                displayTextView.append(message);
-                displayTextView.append("\n");
+                    boolean isScrollable = textHeight > viewHeight;
 
-                if(/*shouldScroll*/true) {
-                    // find the amount we need to scroll.  This works by
-                    // asking the TextView's internal layout for the position
-                    // of the final line and then subtracting the TextView's height
-                    final int scrollAmount = displayTextView.getLayout().getLineTop(displayTextView.getLineCount()) - displayTextView.getHeight();
-                    // if there is no need to scroll, scrollAmount will be <=0
-                    if (scrollAmount > 0)
-                        displayTextView.scrollTo(0, scrollAmount);
+                    boolean isAtBottom = false;
+
+                    if (isScrollable) {
+                        isAtBottom = (scrollY + viewHeight) >= (textHeight - 5); // margine di tolleranza
+                    }
+
+//                    Log.d("SCROLL", "scrollY=" + scrollY +
+//                            " viewHeight=" + viewHeight +
+//                            " textHeight=" + textHeight +
+//                            " isScrollable=" + isScrollable +
+//                            " isAtBottom=" + isAtBottom);
+
+                    displayTextView.append(message);
+                    displayTextView.append("\n");
+
+                    if(isScrollable && (isAtBottom || firstScroll)) {
+                        firstScroll = false;
+                        // find the amount we need to scroll.  This works by
+                        // asking the TextView's internal layout for the position
+                        // of the final line and then subtracting the TextView's height
+                        final int scrollAmount = displayTextView.getLayout().getLineTop(displayTextView.getLineCount()) - displayTextView.getHeight();
+                        // if there is no need to scroll, scrollAmount will be <=0
+                        if (scrollAmount > 0)
+                            displayTextView.scrollTo(0, scrollAmount);
+                    }
                 }
             }
         });
