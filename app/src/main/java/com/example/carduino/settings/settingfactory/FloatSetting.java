@@ -1,9 +1,5 @@
 package com.example.carduino.settings.settingfactory;
 
-import com.example.carduino.receivers.canbus.factory.CanbusActions;
-import com.example.carduino.shared.models.ArduinoMessage;
-import com.example.carduino.shared.utilities.ArduinoMessageUtilities;
-
 public class FloatSetting extends Setting<Float> {
     public FloatSetting() {
     }
@@ -14,10 +10,13 @@ public class FloatSetting extends Setting<Float> {
 
     @Override
     public void setValueFromString(String value) {
-        if(value != null) {
-            this.setValue(Float.parseFloat(value));
-        } else {
+        if(value == null) return;
+        try {
+            float f = Float.parseFloat(value);
+            this.setValue(f);
+        } catch (NumberFormatException e) {
             this.setValue(null);
+            throw new IllegalArgumentException("Valore non numerico: " + value, e);
         }
     }
 }

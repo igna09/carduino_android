@@ -13,7 +13,7 @@ public class ReadSettingExecutor implements ArduinoMessageExecutorInterface {
     @Override
     public void execute(ArduinoMessage message) {
         Integer settingId = message.getValueAt(0); // Ritorna l'Integer (UINT8)
-        Integer settingValue = message.getValueAt(1); // Ritorna l'Integer (UINT16)
+        Object settingValue = message.getValueAt(1);
 
         if (settingId == null || settingValue == null) {
             return;
