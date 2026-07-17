@@ -180,7 +180,13 @@ public class ArduinoMessage {
         // builder.append(event.name()).append(";");
 
         for (Object val : values) {
-            builder.append(val).append(";");
+            if (val instanceof Boolean) {
+                // Se è un booleano, scrive "1" se è vero, "0" se è falso
+                builder.append((Boolean) val ? "1" : "0").append(";");
+            } else {
+                // Per qualsiasi altro tipo di dato, si comporta come prima
+                builder.append(val).append(";");
+            }
         }
         return builder.toString();
     }
