@@ -1,5 +1,6 @@
 package com.example.carduino.arduinolistener;
 
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
 import com.hoho.android.usbserial.driver.FtdiSerialDriver;
 import com.hoho.android.usbserial.driver.ProbeTable;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -15,6 +16,7 @@ public class CustomProber {
     public static UsbSerialProber getCustomProber() {
         ProbeTable customTable = new ProbeTable();
         customTable.addProduct(0x1234, 0xabcd, FtdiSerialDriver.class); // e.g. device with custom VID+PID
+        customTable.addProduct(0x303A, 0x1001, CdcAcmSerialDriver.class); // ESP32-C3 native USB Serial/JTAG
         return new UsbSerialProber(customTable);
     }
 

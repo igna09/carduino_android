@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -36,7 +35,7 @@ public class UsbEventReceiverActivity extends AppCompatActivity
                     ArduinoServiceUtilities.startArduinoService(getApplicationContext());
                 } else {
                     if(ArduinoSingleton.getInstance().getArduinoService() != null && !ArduinoSingleton.getInstance().getArduinoService().isConnected()) {
-                        UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                        UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                         if (device != null) {
                             ArduinoSingleton.getInstance().getArduinoService().attemptConnect(device.getDeviceId(), false);
                         }

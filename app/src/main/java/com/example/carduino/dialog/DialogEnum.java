@@ -33,7 +33,11 @@ public enum DialogEnum {
     BLE_PAIRING_CODE("BLE pairing code", "code",
             null,
             null,
-            null);
+            null),
+    SPEED_LIMIT_SET("Speed limit set", "speed",
+                             null,
+                             null,
+                             null);
 
     private DialogInterface.OnClickListener positiveCallback;
     private DialogInterface.OnClickListener negativeCallback;

@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.carduino.R;
-import com.example.carduino.receivers.canbus.factory.CanbusActions;
 import com.example.carduino.settings.SettingsEnum;
 import com.example.carduino.settings.settingfactory.Setting;
 import com.example.carduino.settings.settingviewfactory.SettingViewFactory;
@@ -19,8 +18,10 @@ import com.example.carduino.settings.settingviewfactory.SettingViewWrapper;
 import com.example.carduino.shared.models.ArduinoMessage;
 import com.example.carduino.shared.models.Event;
 import com.example.carduino.shared.models.carstatus.propertychangelisteners.PropertyChangeListener;
+import com.example.carduino.shared.singletons.ArduinoSingleton;
 import com.example.carduino.shared.singletons.SettingsSingleton;
 import com.example.carduino.shared.utilities.ArduinoMessageUtilities;
+import com.example.carduino.shared.utilities.LoggerUtilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,7 +90,9 @@ public class Settings extends Fragment {
         };
         SettingsSingleton.getInstance().addPropertyChangeListener(pcl);
 
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("GET_SETTINGS").getId().toString(), "")); // start reading all node settings
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.GET_SETTINGS.name())); // start reading all node settings
+
+        // ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;0;100;");
     }
 
     private void renderViews() {

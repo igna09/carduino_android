@@ -17,9 +17,17 @@ public class ArduinoMessageUtilities {
     }
 
     public static void sendArduinoMessage(ArduinoMessage message) {
-        String parsedMessage = message.getAction().getId() + ";" + message.getKey() + ";" + message.getValue() + ";";
+        if (message == null || message.getEvent() == null) {
+            LoggerUtilities.logArduinoMessage("ArduinoService", "Tentativo di invio di un messaggio nullo o non valido");
+            return;
+        }
+
+        // Otteniamo la stringa già serializzata nel nuovo formato (es. "15;2;1000;")
+        String parsedMessage = message.toSerialString();
+
         LoggerUtilities.logArduinoMessage("ArduinoService", "sending " + parsedMessage);
-//        ArduinoSingleton.getInstance().getArduinoService().sendMessageToArduino(stringifyArduinoMessage(message));
+
+        // Invio effettivo tramite il servizio seriale/Bluetooth
         ArduinoSingleton.getInstance().getArduinoService().sendMessageToArduino(parsedMessage);
     }
 

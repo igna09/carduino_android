@@ -1,6 +1,5 @@
 package com.example.carduino.settings;
 
-import com.example.carduino.receivers.canbus.factory.CanbusActions;
 import com.example.carduino.settings.settingfactory.BooleanSetting;
 import com.example.carduino.settings.settingfactory.IntegerSetting;
 import com.example.carduino.settings.settingviewfactory.BooleanSettingViewWrapper;
@@ -9,7 +8,7 @@ import com.example.carduino.settings.settingviewfactory.IntegerSettingViewWrappe
 import com.example.carduino.shared.BaseEnum;
 import com.example.carduino.shared.models.ArduinoMessage;
 import com.example.carduino.shared.models.Event;
-import com.example.carduino.shared.models.carstatus.CarStatusEnum;
+import com.example.carduino.shared.singletons.ArduinoSingleton;
 import com.example.carduino.shared.singletons.SharedDataSingleton;
 import com.example.carduino.shared.utilities.ArduinoMessageUtilities;
 
@@ -18,20 +17,20 @@ import java.util.Arrays;
 public enum SettingsEnum implements BaseEnum {
     AUTO_BRIGHTNESS(null, "Auto brightness", BooleanSetting.class, SettingType.APP, BooleanSettingViewWrapper.class),
     MAX_BRIGHTNESS(null, "Max brightness", IntegerSetting.class, SettingType.APP, IntegerSettingViewWrapper.class),
-    ON_REVERSE_LOWER_MIRRORS(0x04, "Lower mirrors on reverse", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+    /*ON_REVERSE_LOWER_MIRRORS(0x04, "Lower mirrors on reverse", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("ON_REVERSE_LOWER_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
-    }),
+    }),*/
     SPEED_LIMIT_ALARM(null, "Speed limit alarm", BooleanSetting.class, SettingType.APP, BooleanSettingViewWrapper.class),
-    AUTO_CLOSE_REARVIEW_MIRRORS(0x00, "Auto close mirrors on turn off", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+    /*AUTO_CLOSE_REARVIEW_MIRRORS(0x00, "Auto close mirrors on turn off", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("AUTO_CLOSE_REARVIEW_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
-    }),
+    }),*/
     ADVANCED_MODE(null, "Advanced mode", BooleanSetting.class, SettingType.APP, BooleanSettingViewWrapper.class, (value) -> {
         SharedDataSingleton.getInstance().setAdvancedMode((Boolean) value);
     }),
-    SWC_PAIR(0x03, "SWC pairing", BooleanSetting.class, SettingType.APP, ButtonSettingViewWrapper.class, (value) -> {
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("SWC_PAIR").getId().toString(), "2"));
+    SWC_PAIR(0x01, "SWC pairing", BooleanSetting.class, SettingType.APP, ButtonSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.SWC_PAIR));
     }),
-    OTA_MODE(0x01, "Enter OTA mode", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+    /*OTA_MODE(0x01, "Enter OTA mode", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("OTA_MODE").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     }),
     BLE_PAIRING(0x05, "Enter BLE pairing mode", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
@@ -42,6 +41,10 @@ public enum SettingsEnum implements BaseEnum {
     }),
     SEND_ALL_MESSAGES_TO_RADIO(0x08, "Send all messages to radio", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("SEND_ALL_MESSAGES_TO_RADIO").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
+    }),*/
+    TMP_SWC_PRESS_T(0x00, "SWC press time", IntegerSetting.class, SettingType.ARDUINO, IntegerSettingViewWrapper.class, (value) -> {
+        //ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, "", "2"));
+        ArduinoSingleton.getInstance().getArduinoService().sendMessageToArduino("SETTINGS;WRITE_SETTING;0;" + value + ";");
     });
 
     public enum SettingType {

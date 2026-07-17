@@ -41,5 +41,6 @@
 
     <!-- - - - custom prober - - - -->
     <!-- add IDs here -->
+    <usb-device vendor-id="12346" product-id="4097" /> <!-- 0x303A/0x1001: ESP32-C3 USB Serial/JTAG -->
 
 </resources>

@@ -15,6 +15,7 @@ import com.example.carduino.shared.models.carstatus.values.BarPressure;
 import com.example.carduino.shared.models.carstatus.values.LuxLuminance;
 import com.example.carduino.shared.models.carstatus.values.Rpm;
 import com.example.carduino.shared.models.carstatus.values.ValueBoolean;
+import com.example.carduino.shared.models.carstatus.values.ValueInteger;
 import com.example.carduino.shared.models.carstatus.values.Voltage;
 import com.example.carduino.shared.models.trip.tripvalue.FloatTripValue;
 import com.example.carduino.shared.models.trip.tripvalue.IntegerTripValue;
@@ -40,7 +41,8 @@ public enum CarStatusEnum implements BaseEnum {
     BATTERY_VOLTAGE(0x0E, Category.CAR, Voltage.class),
     DISTANCE(null, Category.CAR, KmDistance.class, null, FloatTripValue.class),
     IS_REVERSE(0x10, Category.CAR, ValueBoolean.class),
-    IS_KEY_ON(0x11, Category.CAR, ValueBoolean.class);
+    IS_KEY_ON(0x11, Category.CAR, ValueBoolean.class),
+    SPEED_LIMIT(0x12, Category.CAR, KmhSpeed.class);
 
     private enum Category {
         ENGINE,

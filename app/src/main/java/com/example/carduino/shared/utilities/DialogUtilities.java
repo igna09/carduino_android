@@ -22,4 +22,12 @@ public class DialogUtilities {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ContextsSingleton.getInstance().getApplicationContext().startActivity(intent);
     }
+
+    public static void openDialogSpeedLimitSet(String speed) {
+        Intent intent = new Intent(ContextsSingleton.getInstance().getApplicationContext(), DialogActivity.class);
+        intent.putExtra("DIALOG", "SPEED_LIMIT_SET");
+        intent.putExtra("MESSAGE", speed);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ContextsSingleton.getInstance().getApplicationContext().startActivity(intent);
+    }
 }

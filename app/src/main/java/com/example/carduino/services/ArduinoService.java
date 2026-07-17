@@ -40,7 +40,6 @@ import com.example.carduino.arduinolistener.StringBuffer;
 import com.example.carduino.arduinolistener.TextUtil;
 import com.example.carduino.carduino.CarduinoActivity;
 import com.example.carduino.receivers.ArduinoMessageExecutorInterface;
-import com.example.carduino.receivers.canbus.factory.CanbusActions;
 import com.example.carduino.shared.MyApplication;
 import com.example.carduino.shared.models.AppToOpen;
 import com.example.carduino.shared.models.ArduinoMessage;
@@ -100,7 +99,8 @@ public class ArduinoService extends Service implements SerialListener {
 //                        onArduinoMessage("0;2;" + getIntegerRandomNumber(0, 200));
 //                        onArduinoMessage("0;13;" + getFloatRandomNumber(0, 10));
 //                        onArduinoMessage("0;7;" + getFloatRandomNumber(1000, 2500));
-//                        onArduinoMessage("0;14;" + getFloatRandomNumber(11, 14) + ";");
+//                    onArduinoMessage("BATTERY_VOLTAGE;" + getFloatRandomNumber(11, 14) + ";");
+//                    onArduinoMessage("SPEED_LIMIT_SET;" + getIntegerRandomNumber(0, 200));
 //                        onArduinoMessage("1;1;FALSE;");
 //                    onArduinoMessage("1;2;FALSE;");
 //                    onArduinoMessage("1;3;FALSE;");
@@ -127,6 +127,9 @@ public class ArduinoService extends Service implements SerialListener {
 //                        onArduinoMessage("EVENT;BLE_PAIRING_CODE;123456;");
                         //onArduinoMessage("READ_SETTING;SEND_ALL_MESSAGES_TO_RADIO;FALSE;");
 //                    }
+                    /*if(counter == 10) {
+                        onArduinoMessage("READ_SETTING;0;100;");
+                    }*/
                     Thread.sleep(1000);
                     counter++;
                 } catch (InterruptedException e) {
@@ -193,9 +196,27 @@ public class ArduinoService extends Service implements SerialListener {
         ArduinoSingleton.getInstance().setArduinoService(this);
     }
 
+    private void scanAndConnectExistingDevices() {
+        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        boolean found = false;
+        for (UsbDevice device : usbManager.getDeviceList().values()) {
+            if (device.getVendorId() == 0x303A && device.getProductId() == 0x1001) {
+                LoggerUtilities.logMessage("ArduinoService::scanAndConnectExistingDevices()", "found device, connecting");
+                attemptConnect(device.getDeviceId(), false);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            LoggerUtilities.logMessage("ArduinoService::scanAndConnectExistingDevices()", "no matching device found at startup");
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        this.scanAndConnectExistingDevices();
 
 //        LoggerUtilities.logMessage("ArduinoService::onCreate()", "onCreate()");
         BroadcastReceiver screenOnReceiver = new BroadcastReceiver() {
@@ -373,7 +394,7 @@ public class ArduinoService extends Service implements SerialListener {
                 startConnectThread();
             }
 
-            this.locationListener = new LocationListener() {
+            /*this.locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     // Handle location updates here
@@ -400,7 +421,7 @@ public class ArduinoService extends Service implements SerialListener {
                 }
             };
 
-            this.getLocation();
+            this.getLocation();*/
 
             return Service.START_STICKY_COMPATIBILITY;
         }
@@ -426,51 +447,32 @@ public class ArduinoService extends Service implements SerialListener {
     }
 
     public void onArduinoMessage(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return;
+        }
+
         try {
-            if(!message.trim().isEmpty()) {
-                String[] splittedMessage = ArduinoMessageUtilities.parseArduinoMessage(message.trim());
+            // 1. Il costruttore analizza l'ID/Nome, valida e converte i parametri in automatico
+            ArduinoMessage arduinoMessage = new ArduinoMessage(message.trim());
 
-                if (splittedMessage.length == 3) {
-                    boolean isNumericMode = ArduinoMessageUtilities.isNumeric(splittedMessage[0]);
+            // 2. Log e salvataggio nel buffer circolare
+            LoggerUtilities.logArduinoMessage("ArduinoService", "receiving " + arduinoMessage.toSerialString());
+            ArduinoSingleton.getInstance().getCircularArrayList().add(arduinoMessage.toHumanString());
 
-                    if(isNumericMode) {
-                        splittedMessage[0] = ((CanbusActions) CanbusActions.getEnumById(Integer.parseInt(splittedMessage[0]))).name();
-                        if(CanbusActions.valueOf(splittedMessage[0]).getActionEnumById() != null) {
-                            splittedMessage[1] = ((Enum<?>) CanbusActions.valueOf(splittedMessage[0]).getActionEnumById().apply(Integer.parseInt(splittedMessage[1]))).name();
-                        }
-                    }
-
-                    boolean existsAction;
-                    try {
-                        CanbusActions.valueOf(splittedMessage[0]);
-                        existsAction = true;
-                    } catch (IllegalArgumentException e) {
-                        existsAction = false;
-                    }
-
-//                    try {
-//                        CanbusActions.valueOf(splittedMessage[0]);
-//                    } catch (IllegalArgumentException e) {
-//                        existsAction = false;
-//                    }
-
-                    if (existsAction) {
-                        ArduinoMessage arduinoMessage = new ArduinoMessage(CanbusActions.valueOf(splittedMessage[0]), splittedMessage[1], splittedMessage[2]);
-
-                        LoggerUtilities.logArduinoMessage("ArduinoService", "receiving " + arduinoMessage.toSerialString());
-                        ArduinoSingleton.getInstance().getCircularArrayList().add(arduinoMessage.toSerialString());
-
-                        ArduinoMessageExecutorInterface action = null;
-                        action = (ArduinoMessageExecutorInterface) arduinoMessage.getAction().getClazz().newInstance();
-                        action.execute(arduinoMessage);
-                    } else {
-                        LoggerUtilities.logArduinoMessage("ArduinoService", "Action not existing " + message);
-                    }
-                } else {
-                    LoggerUtilities.logArduinoMessage("ArduinoService", "malformed message " + StringEscapeUtils.escapeJava(message));
-                }
+            // 3. Recupero ed esecuzione dinamica dell'Executor associato all'evento
+            Class<? extends ArduinoMessageExecutorInterface> executorClass = arduinoMessage.getEvent().getExecutorClass();
+            if (executorClass != null) {
+                ArduinoMessageExecutorInterface action = executorClass.newInstance();
+                action.execute(arduinoMessage);
+            } else {
+                LoggerUtilities.logArduinoMessage("ArduinoService", "Nessun executor mappato per l'evento: " + arduinoMessage.getEvent().name());
             }
+
+        } catch (IllegalArgumentException e) {
+            // Cattura eventi sconosciuti, formati errati o parametri non conformi
+            LoggerUtilities.logArduinoMessage("ArduinoService", "Messaggio non valido o sconosciuto: " + message + " -> " + e.getMessage());
         } catch (Exception e) {
+            // Cattura problemi imprevisti (es. fallimento riflessione istanza)
             LoggerUtilities.logException(e);
         }
     }
@@ -541,6 +543,8 @@ public class ArduinoService extends Service implements SerialListener {
         } else {
             LoggerUtilities.logMessage("ArduinoService::connectDevice()", "found device " + device.getDeviceName());
         }
+
+        LoggerUtilities.logMessage("USB", "VID=" + device.getVendorId() + " PID=" + device.getProductId());
 
         UsbSerialDriver driver = UsbSerialProber.getDefaultProber().probeDevice(device);
         if(driver == null) {

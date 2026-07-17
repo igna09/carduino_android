@@ -1,13 +1,9 @@
 package com.example.carduino.shared;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public interface BaseEnum {
     Integer getId();
-
-    static BaseEnum getEnumById(Integer id) {
-        return null;
-    }
-
-    static BaseEnum getEnumByName(String name) {
-        return null;
-    }
+    default List<PayloadType> getPayloadTypes(){return new ArrayList<>();};
 }
