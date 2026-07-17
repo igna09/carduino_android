@@ -17,6 +17,7 @@ public enum Event implements BaseEnum {
     // Eventi esistenti con la loro categoria (e opzionalmente un executor specifico)
     GET_SETTINGS(0x10, EventCategory.CONTROL),
     SWC_PAIR(0x0F, EventCategory.CONTROL),
+    WRITE_SETTING(0x2C, EventCategory.SETTINGS, PayloadType.UINT8, PayloadType.FLOAT),
     READ_SETTING(0x2D, EventCategory.CONTROL, ReadSettingExecutor.class, PayloadType.UINT8, PayloadType.FLOAT),
 
     // Nuovi eventi SENSOR (useranno l'executor di categoria "SENSOR")

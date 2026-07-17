@@ -6,7 +6,8 @@ import com.example.carduino.receivers.categoryexecutors.SensorCategoryExecutor;
 public enum EventCategory {
     // Gli executor vengono istanziati qui staticamente (una sola volta all'avvio)
     SENSOR(new SensorCategoryExecutor()),
-    CONTROL();
+    CONTROL(),
+    SETTINGS();
 
     private final ArduinoMessageExecutorInterface executor;
 
