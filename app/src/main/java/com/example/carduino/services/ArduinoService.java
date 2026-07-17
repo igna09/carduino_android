@@ -101,7 +101,7 @@ public class ArduinoService extends Service implements SerialListener {
 //                        onArduinoMessage("0;7;" + getFloatRandomNumber(1000, 2500));
 //                    onArduinoMessage("BATTERY_VOLTAGE;" + getFloatRandomNumber(11, 14) + ";");
 //                    onArduinoMessage("SPEED_LIMIT_SET;" + getIntegerRandomNumber(0, 200));
-//                        onArduinoMessage("1;1;FALSE;");
+//                        onArduinoMessage("45;0;150.0;");
 //                    onArduinoMessage("1;2;FALSE;");
 //                    onArduinoMessage("1;3;FALSE;");
 //                        onArduinoMessage("1;4;true;");
