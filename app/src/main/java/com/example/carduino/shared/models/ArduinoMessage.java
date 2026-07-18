@@ -1,6 +1,10 @@
 package com.example.carduino.shared.models;
 
 import android.content.Intent;
+
+import com.example.carduino.settings.SettingsEnum;
+import com.example.carduino.settings.settingfactory.BooleanSetting;
+import com.example.carduino.settings.settingfactory.IntegerSetting;
 import com.example.carduino.shared.PayloadType;
 
 import java.util.ArrayList;
@@ -64,8 +68,76 @@ public class ArduinoMessage {
         // Convertiamo ogni parametro stringa nel suo tipo nativo corretto
         for (int i = 0; i < expectedTypes.size(); i++) {
             String rawValue = tokens[i + 1].trim();
+
+            // Intercettiamo i messaggi di configurazione al secondo parametro del payload (indice i == 1, ovvero tokens[2])
+            if (isSettingPayloadEvent(this.event) && i == 1) {
+                try {
+                    // Il primo parametro del payload (tokens[1]) è l'ID del setting.
+                    // Usiamo un parse protetto in grado di leggere anche eventuali formati esadecimali (es. 0x02)
+                    String settingToken = tokens[1].trim();
+                    Integer settingId = settingToken.startsWith("0x") || settingToken.startsWith("0X")
+                            ? Integer.parseInt(settingToken.substring(2), 16)
+                            : Integer.parseInt(settingToken);
+
+                    SettingsEnum setting = (SettingsEnum) SettingsEnum.getEnumById(settingId);
+
+                    if (setting != null) {
+                        Class<?> targetClass = setting.getSettingValueType();
+
+                        if (targetClass == BooleanSetting.class) {
+                            this.values.add(parseFlexibleBoolean(rawValue));
+                            continue; // Passa al prossimo token saltando il parsing standard
+                        } else if (targetClass == IntegerSetting.class) {
+                            this.values.add(parseFlexibleInteger(rawValue));
+                            continue; // Passa al prossimo token saltando il parsing standard
+                        }
+                    }
+                } catch (Exception e) {
+                    // In caso di errore imprevisto, facciamo fallback sul parsing standard di PayloadType
+                }
+            }
+
+            // Parsing standard basato sulla configurazione iniziale dell'evento
             this.values.add(expectedTypes.get(i).parseFromString(rawValue));
         }
+    }
+
+    private boolean isSettingPayloadEvent(Event event) {
+        if (event == null) return false;
+        String name = event.name();
+        //return name.equals("READ_SETTING") || name.equals("WRITE_SETTING") || name.equals("READ_MESSAGE");
+        return name.equals("READ_SETTING");
+    }
+
+    /**
+     * Parsa in modo sicuro stringhe tipo "1.0", "1", "true", "0.0", "0", "false"
+     */
+    private boolean parseFlexibleBoolean(String val) {
+        String clean = val.trim().toLowerCase();
+        if ("true".equals(clean) || "1".equals(clean) || "1.0".equals(clean)) {
+            return true;
+        }
+        if ("false".equals(clean) || "0".equals(clean) || "0.0".equals(clean)) {
+            return false;
+        }
+        // Fallback estremo se l'hardware manda un float strano (es. "2.5")
+        try {
+            return Float.parseFloat(clean) != 0.0f;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Parsa in modo sicuro stringhe tipo "213", "213.0", o booleani convertiti in int
+     */
+    private int parseFlexibleInteger(String val) {
+        String clean = val.trim().toLowerCase();
+        if ("true".equals(clean)) return 1;
+        if ("false".equals(clean)) return 0;
+
+        // Float.parseFloat gestisce nativamente sia "213" che "213.0" senza lanciare eccezioni
+        return (int) Float.parseFloat(clean);
     }
 
     /**
@@ -206,5 +278,21 @@ public class ArduinoMessage {
             builder.append(val).append(";");
         }
         return builder.toString();
+    }
+
+    public boolean getAsBool(int index) {
+        return ((Float) this.values.get(index)) != 0.0f;
+    }
+
+    public int getAsInt(int index) {
+        return ((Float) this.values.get(index)).intValue();
+    }
+
+    public int getAsUint8(int index) {
+        return ((Float) this.values.get(index)).intValue() & 0xFF;
+    }
+
+    public float getAsFloat(int index) {
+        return (Float) this.values.get(index);
     }
 }
