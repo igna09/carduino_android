@@ -22,13 +22,10 @@ public class ArduinoMessageUtilities {
             return;
         }
 
-        // Otteniamo la stringa già serializzata nel nuovo formato (es. "15;2;1000;")
-        String parsedMessage = message.toSerialString();
-
-        LoggerUtilities.logArduinoMessage("ArduinoService", "sending " + parsedMessage);
+        LoggerUtilities.logArduinoMessage("ArduinoService", "sending " + message.toHumanString());
 
         // Invio effettivo tramite il servizio seriale/Bluetooth
-        ArduinoSingleton.getInstance().getArduinoService().sendMessageToArduino(parsedMessage);
+        ArduinoSingleton.getInstance().getArduinoService().sendMessageToArduino(message.toSerialString());
     }
 
     public static boolean isNumeric(String strNum) {
