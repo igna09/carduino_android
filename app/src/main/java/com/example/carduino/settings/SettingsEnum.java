@@ -37,11 +37,11 @@ public enum SettingsEnum implements BaseEnum {
     }),
     BLE_PAIRING(0x05, "Enter BLE pairing mode", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("BLE_PAIRING").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
-    }),
+    }),*/
     RESTART(0x02, "Restart all nodes", BooleanSetting.class, SettingType.APP, ButtonSettingViewWrapper.class, (value) -> {
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.EVENT, Event.valueOf("RESTART").getId().toString(), "-1"));
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.RESTART));
     }),
-    SEND_ALL_MESSAGES_TO_RADIO(0x08, "Send all messages to radio", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+    /*SEND_ALL_MESSAGES_TO_RADIO(0x08, "Send all messages to radio", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("SEND_ALL_MESSAGES_TO_RADIO").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     }),*/
     TMP_SWC_PRESS_T(0x00, "SWC press time", IntegerSetting.class, SettingType.ARDUINO, IntegerSettingViewWrapper.class, (value) -> {
