@@ -51,7 +51,7 @@ public class SpeedCarStatusPropertyChangeListener extends PropertyChangeListener
         }
 
         if(
-            (Boolean) SettingsSingleton.getInstance().getSettings().get(SettingsEnum.SPEED_LIMIT_ALARM.name()).getValue()
+            (Boolean) SettingsSingleton.getInstance().getSettings().get(SettingsEnum.SPD_LMT_LRM.name()).getValue()
             && SharedDataSingleton.getInstance().getRoadInfo().getLimit() != null
             && newValue.getValue() != null
             && newValue.getValue() > SharedDataSingleton.getInstance().getRoadInfo().getLimit()

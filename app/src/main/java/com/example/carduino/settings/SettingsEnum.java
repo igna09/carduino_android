@@ -20,8 +20,8 @@ public enum SettingsEnum implements BaseEnum {
     /*ON_REVERSE_LOWER_MIRRORS(0x04, "Lower mirrors on reverse", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("ON_REVERSE_LOWER_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     }),*/
-    SPEED_LIMIT_ALARM(0x02, "Speed limit alarm", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("SPEED_LIMIT_ALARM").getId(), toSettingFloat(value)));
+    SPD_LMT_LRM(0x02, "Speed limit alarm", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("SPD_LMT_LRM").getId(), toSettingFloat(value)));
     }),
     /*AUTO_CLOSE_REARVIEW_MIRRORS(0x00, "Auto close mirrors on turn off", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("AUTO_CLOSE_REARVIEW_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
