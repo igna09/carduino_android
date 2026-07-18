@@ -94,6 +94,15 @@ public class Settings extends Fragment {
         SettingsSingleton.getInstance().addPropertyChangeListener(pcl);
 
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.GET_SETTINGS.name())); // start reading all node settings
+
+        /*ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        Runnable task = () -> {
+            ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;0;150;");
+            ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;1;true;");
+            ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;2;1;");
+            scheduler.shutdown();
+        };
+        scheduler.schedule(task, 5, TimeUnit.SECONDS);*/
     }
 
     private void renderViews() {
