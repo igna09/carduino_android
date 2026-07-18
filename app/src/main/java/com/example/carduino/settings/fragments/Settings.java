@@ -100,6 +100,7 @@ public class Settings extends Fragment {
             ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;0;150;");
             ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;1;true;");
             ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;2;1;");
+            ArduinoSingleton.getInstance().getArduinoService().onArduinoMessage("45;3;1;");
             scheduler.shutdown();
         };
         scheduler.schedule(task, 5, TimeUnit.SECONDS);*/

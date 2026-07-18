@@ -49,6 +49,9 @@ public enum SettingsEnum implements BaseEnum {
     }),
     HANDLE_KLINE(0x01, "Send kline messages to head unit", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("HANDLE_KLINE").getId(), toSettingFloat(value)));
+    }),
+    LOG_SND_RCV_MSG(0x03, "Log received and sent messages", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("LOG_SND_RCV_MSG").getId(), toSettingFloat(value)));
     });
 
     public enum SettingType {
