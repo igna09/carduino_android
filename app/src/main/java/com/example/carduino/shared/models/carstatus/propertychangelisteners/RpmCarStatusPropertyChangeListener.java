@@ -17,7 +17,7 @@ import com.example.carduino.shared.utilities.LoggerUtilities;
 public class RpmCarStatusPropertyChangeListener extends PropertyChangeListener<Rpm> {
     @Override
     public void onPropertyChange(String propertyName, Rpm oldValue, Rpm newValue) {
-        LoggerUtilities.logMessage("RpmCarStatusPropertyChangeListener", "oldValue: " + (oldValue.getValue() != null ? oldValue.getValue().toString() : "null") + ", newValue: " + (newValue.getValue() != null ? newValue.getValue() : "null") + ", tripStarted: " + TripSingleton.getInstance().getTrip().isStarted());
+        //LoggerUtilities.logMessage("RpmCarStatusPropertyChangeListener", "oldValue: " + (oldValue.getValue() != null ? oldValue.getValue().toString() : "null") + ", newValue: " + (newValue.getValue() != null ? newValue.getValue() : "null") + ", tripStarted: " + TripSingleton.getInstance().getTrip().isStarted());
         // CARSTATUS
         if((oldValue.getValue() == null || oldValue.getValue() == 0) && newValue.getValue() > 0) { //Engine turned on
             Value value = CarStatusFactory.getCarStatusValue("ENGINE_STARTED", "TRUE");
@@ -26,7 +26,7 @@ public class RpmCarStatusPropertyChangeListener extends PropertyChangeListener<R
             }
         }
         if((oldValue.getValue() != null && oldValue.getValue() > 0) && (newValue.getValue() == 0 || newValue.getValue() == null)) { //Engine turned off
-            LoggerUtilities.logMessage("RpmCarStatusPropertyChangeListener", "engine turned off");
+            //LoggerUtilities.logMessage("RpmCarStatusPropertyChangeListener", "engine turned off");
             Value value = CarStatusFactory.getCarStatusValue("ENGINE_STARTED", "FALSE");
             if (value != null) {
                 CarStatusSingleton.getInstance().getCarStatus().putValue(value);

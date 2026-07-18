@@ -456,7 +456,7 @@ public class ArduinoService extends Service implements SerialListener {
             ArduinoMessage arduinoMessage = new ArduinoMessage(message.trim());
 
             // 2. Log e salvataggio nel buffer circolare
-            LoggerUtilities.logArduinoMessage("ArduinoService", "receiving " + arduinoMessage.toSerialString());
+            LoggerUtilities.logArduinoMessage("ArduinoService", "receiving " + arduinoMessage.toHumanString());
             ArduinoSingleton.getInstance().getCircularArrayList().add(arduinoMessage.toHumanString());
 
             // 3. Recupero ed esecuzione dinamica dell'Executor associato all'evento
