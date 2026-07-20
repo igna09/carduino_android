@@ -35,7 +35,7 @@ public enum SettingsEnum implements BaseEnum {
     /*BLE_PAIRING(0x05, "Enter BLE pairing mode", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("BLE_PAIRING").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     }),*/
-    RESTART(0x02, "Restart all nodes", BooleanSetting.class, SettingType.APP, ButtonSettingViewWrapper.class, (value) -> {
+    RESTART(null, "Restart all nodes", BooleanSetting.class, SettingType.APP, ButtonSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.RESTART));
     }),
     TMP_SWC_PRESS_T(0x00, "SWC press time", IntegerSetting.class, SettingType.ARDUINO, IntegerSettingViewWrapper.class, (value) -> {
@@ -46,6 +46,9 @@ public enum SettingsEnum implements BaseEnum {
     }),
     LOG_SND_RCV_MSG(0x03, "Log received and sent messages", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("LOG_SND_RCV_MSG").getId(), toSettingFloat(value)));
+    }),
+    OTA_MODE(0x04, "Allow OTA upload", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("OTA_MODE").getId(), toSettingFloat(value)));
     });
 
     public enum SettingType {
