@@ -35,9 +35,9 @@ public enum DialogEnum {
             null,
             null),
     SPEED_LIMIT_SET("Speed limit set", "speed",
-                             null,
-                             null,
-                             null);
+            null,
+            null,
+            new TimedDialogAction(Duration.SHORT, null));
 
     private DialogInterface.OnClickListener positiveCallback;
     private DialogInterface.OnClickListener negativeCallback;

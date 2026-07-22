@@ -130,6 +130,7 @@ public class ArduinoService extends Service implements SerialListener {
                     /*if(counter == 10) {
                         onArduinoMessage("READ_SETTING;0;100;");
                     }*/
+                    onArduinoMessage("47;50;");
                     Thread.sleep(1000);
                     counter++;
                 } catch (InterruptedException e) {

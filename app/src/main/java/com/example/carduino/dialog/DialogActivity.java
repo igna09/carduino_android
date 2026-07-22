@@ -57,8 +57,10 @@ public class DialogActivity extends AppCompatActivity {
                             leftDuration--;
                         }
                         if(alertDialog.isShowing()) {
+                            if(dialogEnum.getTimedDialogAction().getOnClickListener() != null) {
+                                runOnUiThread(() -> dialogEnum.getTimedDialogAction().getOnClickListener().onClick(alertDialog, -1));
+                            }
                             alertDialog.dismiss();
-                            runOnUiThread(() -> dialogEnum.getTimedDialogAction().getOnClickListener().onClick(alertDialog, -1));
                         }
                     }
                 });
