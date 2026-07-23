@@ -20,9 +20,6 @@ public enum SettingsEnum implements BaseEnum {
     /*ON_REVERSE_LOWER_MIRRORS(0x04, "Lower mirrors on reverse", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("ON_REVERSE_LOWER_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     }),*/
-    SPD_LMT_LRM(0x02, "Speed limit alarm", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
-        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("SPD_LMT_LRM").getId(), toSettingFloat(value)));
-    }),
     /*AUTO_CLOSE_REARVIEW_MIRRORS(0x00, "Auto close mirrors on turn off", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(CanbusActions.WRITE_SETTING, SettingsEnum.valueOf("AUTO_CLOSE_REARVIEW_MIRRORS").getId().toString(), (Boolean) value ? "TRUE" : "FALSE"));
     }),*/
@@ -44,11 +41,20 @@ public enum SettingsEnum implements BaseEnum {
     HANDLE_KLINE(0x01, "Send kline messages to head unit", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("HANDLE_KLINE").getId(), toSettingFloat(value)));
     }),
+    SPD_LMT_LRM(0x02, "Speed limit alarm", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("SPD_LMT_LRM").getId(), toSettingFloat(value)));
+    }),
     LOG_SND_RCV_MSG(0x03, "Log received and sent messages", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("LOG_SND_RCV_MSG").getId(), toSettingFloat(value)));
     }),
     OTA_MODE(0x04, "Allow OTA upload", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
         ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("OTA_MODE").getId(), toSettingFloat(value)));
+    }),
+    LOG_HEAP_STS(0x05, "Log node heap status", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("LOG_HEAP_STS").getId(), toSettingFloat(value)));
+    }),
+    CRUISE_DBG(0x06, "Read only kline cruise", BooleanSetting.class, SettingType.ARDUINO, BooleanSettingViewWrapper.class, (value) -> {
+        ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.WRITE_SETTING, SettingsEnum.valueOf("CRUISE_DBG").getId(), toSettingFloat(value)));
     });
 
     public enum SettingType {
