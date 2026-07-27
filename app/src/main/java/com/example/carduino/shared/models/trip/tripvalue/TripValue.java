@@ -63,4 +63,6 @@ public abstract class TripValue<T> {
     public void setTripValueEnum(TripValueEnum tripValueEnum) {
         this.tripValueEnum = tripValueEnum;
     }
+
+    public abstract void mergeFrom(TripValue<T> other);
 }

@@ -20,4 +20,12 @@ public class IntegerTripValue extends TripValue<Integer> {
         setSum(getSum() + value);
         setAverage(getSum() / getReadings());
     }
+
+    @Override
+    public void mergeFrom(TripValue<Integer> other) {
+        if (other.getMax() > getMax()) setMax(other.getMax());
+        setReadings(getReadings() + other.getReadings());
+        setSum(getSum() + other.getSum());
+        setAverage(getReadings() > 0 ? getSum() / getReadings() : 0);
+    }
 }

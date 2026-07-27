@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal">
 
-    <GridLayout android:layout_width="match_parent"
-        android:layout_height="0dp"
+    <!-- Colonna sinistra fissa: lifetime -->
+    <GridLayout
+        android:id="@+id/lifetime_grid_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:id="@+id/trip_grid_view_container"
-        android:useDefaultMargins="false" >
-    </GridLayout>
-</androidx.appcompat.widget.LinearLayoutCompat>
+        android:useDefaultMargins="false" />
+
+    <!-- Colonna destra scrollabile: storico trip -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/trips_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+</LinearLayout>

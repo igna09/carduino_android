@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 
 public class TripSingleton {
-    private class TripValueDeserializer implements JsonDeserializer<TripValue> {
+    public class TripValueDeserializer implements JsonDeserializer<TripValue> {
         @Override
         public TripValue deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonElement jsonElement = json.getAsJsonObject().get("tripValueEnum");
