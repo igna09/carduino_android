@@ -43,6 +43,8 @@ import com.example.carduino.receivers.ArduinoMessageExecutorInterface;
 import com.example.carduino.shared.MyApplication;
 import com.example.carduino.shared.models.AppToOpen;
 import com.example.carduino.shared.models.ArduinoMessage;
+import com.example.carduino.shared.models.Event;
+import com.example.carduino.shared.models.carstatus.CarStatusEnum;
 import com.example.carduino.shared.models.carstatus.CarStatusFactory;
 import com.example.carduino.shared.models.carstatus.values.Value;
 import com.example.carduino.shared.singletons.AppSwitchSingleton;
@@ -55,6 +57,7 @@ import com.example.carduino.shared.singletons.SharedDataSingleton;
 import com.example.carduino.shared.singletons.TripSingleton;
 import com.example.carduino.shared.utilities.ArduinoMessageUtilities;
 import com.example.carduino.shared.utilities.LoggerUtilities;
+import com.example.carduino.speedlimit.SpeedLimitManager;
 import com.hoho.android.usbserial.driver.SerialTimeoutException;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -65,10 +68,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ArduinoService extends Service implements SerialListener {
     private class ArduinoRunnable implements Runnable {
@@ -167,10 +173,11 @@ public class ArduinoService extends Service implements SerialListener {
     private Thread connectThread;
 
     private LocationManager locationManager;
-
     private LocationListener locationListener;
-
     private static final Integer LOCATION_INTERVAL = 5000;
+    private SpeedLimitManager speedLimitManager;
+    private final ExecutorService mapExecutor = Executors.newSingleThreadExecutor();
+    private boolean isGraphHopperReady = false;
 
     public ArduinoService() {
         binder = new SerialBinder();
@@ -395,19 +402,19 @@ public class ArduinoService extends Service implements SerialListener {
                 startConnectThread();
             }
 
-            /*this.locationListener = new LocationListener() {
+            // Inizializza SpeedLimitManager
+            speedLimitManager = new SpeedLimitManager();
+            File graphFolder = new File(getExternalFilesDir(null), "graph-cache");
+
+            // Avvia il caricamento in background
+            speedLimitManager.initGraphHopper(graphFolder, () -> {
+                isGraphHopperReady = true;
+                LoggerUtilities.logMessage("GraphHopper caricato con successo!");
+            });
+
+            this.locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    // Handle location updates here
-//                    LoggerUtilities.logMessage("Location changed: " + location.toString());
-//                    Toast.makeText(getApplicationContext(), "Location changed: " + location, Toast.LENGTH_LONG).show();
-
-                    // TEMPORARY: AS CAR CANBUS IS NOT READING
-                    Value value = CarStatusFactory.getCarStatusValue("SPEED", Integer.valueOf(Math.round(location.getSpeed() * 3.6f)).toString());
-//                    if (value != null) {
-//                        CarStatusSingleton.getInstance().getCarStatus().putValue(value);
-//                    }
-
                     ArduinoService.this.fetchRoadInfo(location.getLatitude(), location.getLongitude());
                 }
                 @Override
@@ -422,7 +429,7 @@ public class ArduinoService extends Service implements SerialListener {
                 }
             };
 
-            this.getLocation();*/
+            this.getLocation();
 
             return Service.START_STICKY_COMPATIBILITY;
         }
@@ -445,6 +452,10 @@ public class ArduinoService extends Service implements SerialListener {
         }
 
         super.onDestroy();
+
+        if (mapExecutor != null && !mapExecutor.isShutdown()) {
+            mapExecutor.shutdown();
+        }
     }
 
     public void onArduinoMessage(String message) {
@@ -609,23 +620,39 @@ public class ArduinoService extends Service implements SerialListener {
     }
 
     private void fetchRoadInfo(double latitude, double longitude) {
-        new Thread(() -> {
-            try {
-                JSONArray elements = getJsonArray(latitude, longitude);
-                if (elements.length() > 0) {
-                    String speedLimit = elements.getJSONObject(0).getJSONObject("tags").optString("maxspeed", null);
-                    SharedDataSingleton.getInstance().getRoadInfo().setLimit(Integer.valueOf(speedLimit));
+        if (!isGraphHopperReady || speedLimitManager == null) {
+            return; // Mappa non ancora pronta in memoria
+        }
 
-                    String roadName = elements.getJSONObject(0).getJSONObject("tags").optString("name", null);
-                    SharedDataSingleton.getInstance().getRoadInfo().setName(roadName);
+        // Esegui la ricerca della strada in background per non bloccare il MainLooper
+        mapExecutor.execute(() -> {
+            Integer speedLimit = speedLimitManager.getCurrentRoadSpeedLimit(latitude, longitude);
 
-                    LoggerUtilities.logMessage("Road", SharedDataSingleton.getInstance().getRoadInfo().toString());
+            Integer previousSpeedLimit = null;
+            if(
+                    CarStatusSingleton.getInstance().getCarStatus() != null
+                    && CarStatusSingleton.getInstance().getCarStatus().getCarStatusValues() != null
+                    && CarStatusSingleton.getInstance().getCarStatus().getCarStatusValues().containsKey(CarStatusEnum.SPEED_LIMIT.name())
+            ) {
+                Value previousSpeedLimitValue = CarStatusSingleton.getInstance().getCarStatus().getCarStatusValues().get(CarStatusEnum.SPEED_LIMIT.name());
+                if(previousSpeedLimitValue != null && previousSpeedLimitValue.getValue() != null) {
+                    previousSpeedLimit = (Integer) previousSpeedLimitValue.getValue();
                 }
-            } catch (Exception e) {
-                LoggerUtilities.logException(e);
-                LoggerUtilities.logMessage("SpeedLimit", "Errore nel recupero del limite di velocità");
             }
-        }).start();
+
+            if (speedLimit != null && !speedLimit.equals(previousSpeedLimit)) {
+                // Creo il valore con la chiave "SPEED_LIMIT" per il tuo CarStatus
+                Value speedLimitValue = CarStatusFactory.getCarStatusValue(CarStatusEnum.SPEED_LIMIT.name(), speedLimit.toString());
+
+                if (speedLimitValue != null) {
+                    CarStatusSingleton.getInstance().getCarStatus().putValue(speedLimitValue);
+                }
+
+                ArduinoMessageUtilities.sendArduinoMessage(new ArduinoMessage(Event.SPEED_LIMIT_SET, speedLimit));
+
+                // LoggerUtilities.logMessage("Limite rilevato: " + speedLimit + " km/h");
+            }
+        });
     }
 
     private static @NonNull JSONArray getJsonArray(double latitude, double longitude) throws IOException, JSONException {
