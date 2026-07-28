@@ -39,7 +39,7 @@ public class TripSummaryAdapter extends RecyclerView.Adapter<TripSummaryAdapter.
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
         Trip t = trips.get(position);
-        h.date.setText(t.getBegin() != null ? sdf.format(t.getBegin()) : "-");
+        h.date.setText(t.getBeginDate() != null ? sdf.format(t.getBeginDate()) : "-");
 
         TripValue dist = t.getTripValues().get(TripValueEnum.DISTANCE);
         TripValue speed = t.getTripValues().get(TripValueEnum.SPEED);
@@ -51,7 +51,7 @@ public class TripSummaryAdapter extends RecyclerView.Adapter<TripSummaryAdapter.
                 formatValue(fuel != null ? (Number) fuel.getAverage() : null, "%.2f"));
         if(t.isStarted()) s += " (in corso)";
         if(!t.isStarted()) {
-            Duration duration = Duration.between(t.getBegin().toInstant(), t.getEnd().toInstant());
+            Duration duration = Duration.between(t.getBeginDate().toInstant(), t.getEndDate().toInstant());
             s += " | Durata " + String.format("%dh%dm", duration.toHours(), duration.toMinutes());
         }
         h.summary.setText(s);

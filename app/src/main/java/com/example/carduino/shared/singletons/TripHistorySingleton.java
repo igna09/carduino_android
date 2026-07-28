@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class TripHistorySingleton {
@@ -110,28 +111,53 @@ public class TripHistorySingleton {
     }
 
     public void backupTrips() throws IOException {
-        File f = getTripsFile();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(trips);
-        if (f != null) fileSystemSingleton.writeToFile(f, json, false);
+        Trip current = getCurrentTrip(); //[cite: 3]
+        if (current != null && current.isStarted()) {
+            current.touch(); // Aggiorna lastUpdate all'ora corrente prima di salvare
+        }
+
+        File f = getTripsFile(); //[cite: 3]
+        Gson gson = new GsonBuilder().setPrettyPrinting().create(); //[cite: 3]
+        String json = gson.toJson(trips); //[cite: 3]
+        if (f != null) fileSystemSingleton.writeToFile(f, json, false); //[cite: 3]
     }
 
     public void loadTrips() {
         try {
-            File f = getTripsFile();
-            if (f == null || !f.exists()) return;
-            FileInputStream fin = new FileInputStream(f);
-            String json = TripHistorySingleton.convertStreamToString(fin);
-            fin.close();
+            File f = getTripsFile(); //
+            if (f == null || !f.exists()) return; //[cite: 3]
+            FileInputStream fin = new FileInputStream(f); //[cite: 3]
+            String json = TripHistorySingleton.convertStreamToString(fin); //[cite: 3]
+            fin.close(); //[cite: 3]
+
             Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(TripValue.class, new TripValueDeserializer())
+                    .registerTypeAdapter(TripValue.class, new TripValueDeserializer()) //[cite: 3]
                     .create();
-            Type listType = new TypeToken<ArrayList<Trip>>(){}.getType();
-            trips = gson.fromJson(json, listType);
-            if (trips == null) trips = new ArrayList<>();
+            Type listType = new TypeToken<ArrayList<Trip>>(){}.getType(); //[cite: 3]
+            trips = gson.fromJson(json, listType); //[cite: 3]
+            if (trips == null) trips = new ArrayList<>(); //[cite: 3]
+
+            // --- NUOVA LOGICA: Chiusura di eventuali trip rimasti aperti ---
+            closeUnfinishedTripIfAny();
+
         } catch (Exception e) {
-            LoggerUtilities.logMessage("TripHistory", "load failed: " + e.getMessage());
-            trips = new ArrayList<>();
+            LoggerUtilities.logMessage("TripHistory", "load failed: " + e.getMessage()); //[cite: 3]
+            trips = new ArrayList<>(); //[cite: 3]
+        }
+    }
+
+    private void closeUnfinishedTripIfAny() {
+        Trip current = getCurrentTrip(); //[cite: 3]
+        // Se l'ultimo trip risulta ancora avviato o privo di endDate
+        if (current != null && (current.isStarted() || current.getEndDate() == null)) {
+            Date fallbackDate = current.getLastUpdate() != null ? current.getLastUpdate() : new Date();
+            current.stopTrip(fallbackDate);
+
+            try {
+                backupTrips(); // Salva lo stato corretto su file[cite: 3]
+            } catch (IOException e) {
+                LoggerUtilities.logMessage("TripHistory", "save failed during unfinished trip recovery");
+            }
         }
     }
 
