@@ -7,6 +7,8 @@ public class ValueFloat extends Value<Float> {
         super(id, value, unit);
     }
 
+    public ValueFloat() {super();}
+
     @Override
     public Float parseValueFromString(String value) {
         return Float.parseFloat(value);

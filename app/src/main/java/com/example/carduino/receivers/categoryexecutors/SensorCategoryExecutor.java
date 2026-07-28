@@ -17,8 +17,8 @@ public class SensorCategoryExecutor implements ArduinoMessageExecutorInterface {
             return;
         }
 
-        // Recuperiamo il valore già convertito nel suo tipo nativo (Float, Integer, etc.)[cite: 1]
-        Object rawValue = message.getValueAt(0); //[cite: 1]
+        // Recuperiamo il valore già convertito nel suo tipo nativo (Float, Integer, etc.)
+        Object rawValue = message.getValueAt(0);
 
         if (rawValue != null) {
             // Adesso passiamo direttamente l'istanza di Event (come chiave) e l'Object già tipizzato

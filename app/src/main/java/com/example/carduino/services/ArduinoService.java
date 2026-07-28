@@ -133,14 +133,17 @@ public class ArduinoService extends Service implements SerialListener {
 //                        onArduinoMessage("EVENT;BLE_PAIRING_CODE;123456;");
                         //onArduinoMessage("READ_SETTING;SEND_ALL_MESSAGES_TO_RADIO;FALSE;");
 //                    }
-                    if(counter % 15 == 0 && counter % 2 == 0) {
+                    /*if(counter % 15 == 0 && counter % 2 == 0) {
                         onArduinoMessage("ENGINE_RPM;0;");
                     } else if(counter % 15 == 0 && counter % 2 == 1) {
                         onArduinoMessage("ENGINE_RPM;3000;");
-                    }
+                    }*/
                     /*onArduinoMessage("SPEED;"+getIntegerRandomNumber(100, 130));
                     onArduinoMessage("FUEL_CONSUMPTION;"+getFloatRandomNumber(10, 20));*/
 //                    onArduinoMessage("47;" + getIntegerRandomNumber(0, 200));
+                    /*if(counter % 15 == 0) {
+                        onArduinoMessage("48;" + getIntegerRandomNumber(0, 2));
+                    }*/
                     Thread.sleep(1000);
                     counter++;
                 } catch (InterruptedException e) {
@@ -151,11 +154,11 @@ public class ArduinoService extends Service implements SerialListener {
         }
 
         public Integer getIntegerRandomNumber(int min, int max) {
-            return (int) ((Math.random() * (max - min)) + min);
+            return (int) ((Math.random() * (max - min + 1)) + min);
         }
 
         public Float getFloatRandomNumber(int min, int max) {
-            return (float) ((Math.random() * (max - min)) + min);
+            return (float) ((Math.random() * (max - min + 1)) + min);
         }
     }
 

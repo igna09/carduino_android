@@ -2,6 +2,7 @@ package com.example.carduino.shared.models;
 
 import com.example.carduino.receivers.ArduinoMessageExecutorInterface;
 import com.example.carduino.receivers.categoryexecutors.SensorCategoryExecutor;
+import com.example.carduino.receivers.executors.CruiseExecutor;
 import com.example.carduino.receivers.executors.LongPressExecutor;
 import com.example.carduino.receivers.executors.ReadSettingExecutor;
 import com.example.carduino.receivers.executors.SpeedLimitExecutor;
@@ -33,7 +34,8 @@ public enum Event implements BaseEnum {
     FUEL_CONSUMPTION(0x21, EventCategory.SENSOR, SensorCategoryExecutor.class, PayloadType.FLOAT),
     BATTERY_VOLTAGE(0x22, EventCategory.SENSOR, SensorCategoryExecutor.class, PayloadType.FLOAT),
     SPEED_LIMIT_SET(0x2F, EventCategory.CONTROL, SpeedLimitExecutor.class, PayloadType.UINT8),
-    LONG_PRESS(0x29, EventCategory.CONTROL, LongPressExecutor.class);
+    LONG_PRESS(0x29, EventCategory.CONTROL, LongPressExecutor.class),
+    CRUISE_STATUS(0x30, EventCategory.CONTROL, CruiseExecutor.class, PayloadType.FLOAT);
 
     private final int id;
     private final EventCategory category;
