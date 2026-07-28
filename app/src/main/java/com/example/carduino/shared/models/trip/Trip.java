@@ -9,6 +9,7 @@ import com.example.carduino.shared.models.trip.tripvalue.TripValueEnum;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Trip {
     private String id;

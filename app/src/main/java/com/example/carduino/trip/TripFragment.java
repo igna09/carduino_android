@@ -10,10 +10,12 @@ import android.widget.GridLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.carduino.R;
 import com.example.carduino.shared.models.trip.tripvalue.TripValue;
-import com.example.carduino.shared.singletons.TripSingleton;
+import com.example.carduino.shared.singletons.TripHistorySingleton;
 import com.example.carduino.shared.utilities.LoggerUtilities;
 import com.example.carduino.trip.cards.TripCard;
 
@@ -21,12 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Trip extends Fragment {
+public class TripFragment extends Fragment {
     GridLayout gridLayout;
     List<TripCard> cards;
+    TripSummaryAdapter tripAdapter;
 
-    final int VIEW_COLUMN_COUNT = 4;
-    final int VIEW_ROW_COUNT = 3;
+    int VIEW_COLUMN_COUNT;
+    int VIEW_ROW_COUNT;
     final int MARGIN = 5;
 
     private Thread refreshThread;
@@ -35,9 +38,8 @@ public class Trip extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View r = inflater.inflate(R.layout.fragment_trip, container, false);
-        this.gridLayout = r.findViewById(R.id.trip_grid_view_container);
+        this.gridLayout = r.findViewById(R.id.lifetime_grid_container);
 
-        com.example.carduino.shared.models.trip.Trip trip = TripSingleton.getInstance().getTrip();
         cards = Arrays.stream(TripCardEnum.values()).map(tripCardEnum -> {
             TripCard card = null;
             try {
@@ -56,6 +58,9 @@ public class Trip extends Fragment {
 
             return card;
         }).collect(Collectors.toList());
+
+        VIEW_COLUMN_COUNT = cards.stream().mapToInt(c -> c.getColumn() + 1).max().orElse(1);
+        VIEW_ROW_COUNT = cards.stream().mapToInt(c -> c.getRow() + 1).max().orElse(1);
 
         int viewColumnSpan = cards.stream().reduce(0, (acc, cur) -> acc + (cur.getColumnSpan() - 1), Integer::sum);
         int viewRowSpan = cards.stream().reduce(0, (acc, cur) -> acc + (cur.getRowSpan() - 1), Integer::sum);
@@ -76,21 +81,31 @@ public class Trip extends Fragment {
 
                     gridLayout.addView(card.getCardView(), card.getLayoutParams());
 
-                    if(card.getTripValueEnum()!= null && trip.getTripValues().containsKey(card.getTripValueEnum().name()) && trip.getTripValues().get(card.getTripValueEnum().name()) != null) {
-                        TripValue v = (TripValue) trip.getTripValues().get(card.getTripValueEnum().name());
-                        card.updateCard(v);
+                    if (card.getTripValueEnum() != null) {
+                        TripValue v = TripHistorySingleton.getInstance().getLifetimeValue(card.getTripValueEnum());
+                        if (v != null) card.updateCard(v);
                     }
                 });
             }
         });
 
+        // Colonna destra: storico trip scrollabile
+        RecyclerView tripsRecyclerView = r.findViewById(R.id.trips_recycler_view);
+        tripsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        tripAdapter = new TripSummaryAdapter(TripHistorySingleton.getInstance().getAllTripsRecentFirst());
+        tripsRecyclerView.setAdapter(tripAdapter);
+
         refreshThread = new Thread(() -> {
-            while(refreshThread.isAlive() && !refreshThread.isInterrupted()) {
-                if(getActivity() != null) {
-                    getActivity().runOnUiThread(() -> cards.forEach(card -> {
-                        TripValue tripValue = TripSingleton.getInstance().getTrip().getTripValues().get(card.getTripValueEnum());
-                        card.updateCard(tripValue);
-                    }));
+            while (refreshThread.isAlive() && !refreshThread.isInterrupted()) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        cards.forEach(card -> {
+                            if (card.getTripValueEnum() == null) return;
+                            TripValue v = TripHistorySingleton.getInstance().getLifetimeValue(card.getTripValueEnum());
+                            card.updateCard(v);
+                        });
+                        tripAdapter.updateTrips(TripHistorySingleton.getInstance().getAllTripsRecentFirst());
+                    });
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {

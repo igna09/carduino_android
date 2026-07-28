@@ -9,10 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.carduino.R;
+import com.example.carduino.shared.models.trip.Trip;
 import com.example.carduino.shared.models.trip.tripvalue.TripValue;
 import com.example.carduino.shared.models.trip.tripvalue.TripValueEnum;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,14 +45,24 @@ public class TripSummaryAdapter extends RecyclerView.Adapter<TripSummaryAdapter.
         TripValue speed = t.getTripValues().get(TripValueEnum.SPEED);
         TripValue fuel = t.getTripValues().get(TripValueEnum.FUEL_CONSUMPTION);
 
-        String s = String.format(Locale.getDefault(), "Dist: %s km | Vel media: %s | Consumo: %s",
-                dist != null ? dist.getSum() : "-",
+        String s = String.format(Locale.getDefault(), "Dist: %s km | Vel media: %s km/h | Consumo: %s km/l",
+                formatValue(dist != null ? (Number) dist.getSum() : null, "%.2f"),
                 speed != null ? speed.getAverage() : "-",
-                fuel != null ? fuel.getAverage() : "-");
-        h.summary.setText(s + (t.isStarted() ? " (in corso)" : ""));
+                formatValue(fuel != null ? (Number) fuel.getAverage() : null, "%.2f"));
+        if(t.isStarted()) s += " (in corso)";
+        if(!t.isStarted()) {
+            Duration duration = Duration.between(t.getBegin().toInstant(), t.getEnd().toInstant());
+            s += " | Durata " + String.format("%dh%dm", duration.toHours(), duration.toMinutes());
+        }
+        h.summary.setText(s);
     }
 
-    @Override public int getItemCount() { return trips.size(); }
+    private String formatValue(Number n, String format) {
+        if (n == null) return "-";
+        return String.format(Locale.getDefault(), format, n.doubleValue());
+    }
+
+    @Override public int getItemCount() { return trips == null ? 0 : trips.size(); }
 
     static class VH extends RecyclerView.ViewHolder {
         TextView date, summary;

@@ -7,14 +7,14 @@
     app:cardBackgroundColor="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_columnWeight="1"
-    android:padding="5dp">
+    android:layout_columnWeight="1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:padding="20dp">
 
         <TextView
             android:gravity="center"

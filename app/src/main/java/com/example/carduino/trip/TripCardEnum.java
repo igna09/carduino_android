@@ -11,11 +11,11 @@ import com.example.carduino.trip.transformators.CardTransformator;
 import com.example.carduino.trip.transformators.FloatTransformator;
 
 public enum TripCardEnum {
-    SPEED("SPEED", TripValueEnum.SPEED, 0, 0, AvgMaxTripCard.class, new FloatTransformator("0.0")),
+    SPEED("SPEED", TripValueEnum.SPEED, 0, 0, AvgMaxTripCard.class, null),
     FUEL_CONSUMPTION("FUEL CONSUMPTION", TripValueEnum.FUEL_CONSUMPTION, 0, 1, AvgMaxTripCard.class, new FloatTransformator("0.0")),
-    DISTANCE("DISTANCE", TripValueEnum.DISTANCE, 0, 2, DistanceTripCard.class, new FloatTransformator("0.0")),
-    BUTTONS(null, null, 0, 3, ButtonsTripCard.class, null),
-    ROAD("ROAD", null, 1, 0, RoadTripCard.class, null);
+    DISTANCE("DISTANCE", TripValueEnum.DISTANCE, 1, 0, DistanceTripCard.class, new FloatTransformator("0.0")),
+    BUTTONS(null, null, 1, 1, ButtonsTripCard.class, null);
+    //ROAD("ROAD", null, 1, 0, RoadTripCard.class, null);
 
     String label;
     Integer row;

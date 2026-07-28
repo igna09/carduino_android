@@ -14,7 +14,7 @@ import com.example.carduino.shared.singletons.LoggerSingleton;
 import com.example.carduino.shared.singletons.AppSwitchSingleton;
 import com.example.carduino.shared.singletons.SettingsSingleton;
 import com.example.carduino.shared.singletons.SharedDataSingleton;
-import com.example.carduino.shared.singletons.TripSingleton;
+import com.example.carduino.shared.singletons.TripHistorySingleton;
 
 public class MyApplication extends Application implements Application.ActivityLifecycleCallbacks {
     //should this be an array (using oncreate and onremove)?
@@ -26,7 +26,7 @@ public class MyApplication extends Application implements Application.ActivityLi
     private FileSystemSingleton fileSystemSingleton;
     private SettingsSingleton settingsSingleton;
     private SharedDataSingleton sharedDataSingleton;
-    private TripSingleton tripSingleton;
+    private TripHistorySingleton tripHistorySingleton;
     private AppSwitchSingleton appSwitchSingleton;
 
     @Override
@@ -39,7 +39,7 @@ public class MyApplication extends Application implements Application.ActivityLi
         contextsSingleton = ContextsSingleton.getInstance();
         settingsSingleton = SettingsSingleton.getInstance();
         sharedDataSingleton = SharedDataSingleton.getInstance();
-        tripSingleton = TripSingleton.getInstance();
+        tripHistorySingleton = TripHistorySingleton.getInstance();
         appSwitchSingleton = AppSwitchSingleton.getInstance();
 
         contextsSingleton.setApplicationContext(this);
@@ -182,12 +182,12 @@ public class MyApplication extends Application implements Application.ActivityLi
         this.sharedDataSingleton = sharedDataSingleton;
     }
 
-    public TripSingleton getTripSingleton() {
-        return tripSingleton;
+    public TripHistorySingleton getTripHistorySingleton() {
+        return tripHistorySingleton;
     }
 
-    public void setTripSingleton(TripSingleton tripSingleton) {
-        this.tripSingleton = tripSingleton;
+    public void setTripHistorySingleton(TripHistorySingleton tripHistorySingleton) {
+        this.tripHistorySingleton = tripHistorySingleton;
     }
 
     public AppSwitchSingleton getAppSwitchSingleton() {

@@ -2,34 +2,34 @@ package com.example.carduino.dialog;
 
 import android.content.DialogInterface;
 
-import com.example.carduino.shared.singletons.TripSingleton;
+import com.example.carduino.shared.singletons.TripHistorySingleton;
 
 public enum DialogEnum {
-    CONTINUE_LAST_TRIP("Continue last trip", "Would you like to continue last trip?",
+    /*CONTINUE_LAST_TRIP("Continue last trip", "Would you like to continue last trip?",
             (dialog, which) -> {
                 try {
-                    TripSingleton.getInstance().restoreTrip();
+                    TripHistorySingleton.getInstance().restoreTrip();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                TripSingleton.getInstance().startTrip();
+                TripHistorySingleton.getInstance().startTrip();
             },
             (dialog, which) -> {
                 try {
-                    TripSingleton.getInstance().resetTrip();
+                    TripHistorySingleton.getInstance().resetTrip();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                TripSingleton.getInstance().startTrip();
+                TripHistorySingleton.getInstance().startTrip();
             },
             new TimedDialogAction(Duration.SHORT, (dialog, which) -> {
                 try {
-                    TripSingleton.getInstance().restoreTrip();
+                    TripHistorySingleton.getInstance().restoreTrip();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                TripSingleton.getInstance().startTrip();
-            })),
+                TripHistorySingleton.getInstance().startTrip();
+            })),*/
     BLE_PAIRING_CODE("BLE pairing code", "code",
             null,
             null,

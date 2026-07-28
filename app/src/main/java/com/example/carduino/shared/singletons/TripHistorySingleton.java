@@ -1,5 +1,6 @@
 package com.example.carduino.shared.singletons;
 
+import com.example.carduino.shared.TripValueDeserializer;
 import com.example.carduino.shared.models.trip.Trip;
 import com.example.carduino.shared.models.trip.tripvalue.TripValue;
 import com.example.carduino.shared.models.trip.tripvalue.TripValueEnum;
@@ -66,6 +67,11 @@ public class TripHistorySingleton {
         return trips.isEmpty() ? null : trips.get(trips.size() - 1);
     }
 
+    public boolean isCurrentTripStarted() {
+        Trip t = getCurrentTrip();
+        return t != null && t.isStarted();
+    }
+
     /** Trip passati, dal più recente (esclude quello corrente). */
     public List<Trip> getPastTrips() {
         if (trips.size() <= 1) return Collections.emptyList();
@@ -110,12 +116,12 @@ public class TripHistorySingleton {
         if (f != null) fileSystemSingleton.writeToFile(f, json, false);
     }
 
-    private void loadTrips() {
+    public void loadTrips() {
         try {
             File f = getTripsFile();
             if (f == null || !f.exists()) return;
             FileInputStream fin = new FileInputStream(f);
-            String json = TripSingleton.convertStreamToString(fin);
+            String json = TripHistorySingleton.convertStreamToString(fin);
             fin.close();
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(TripValue.class, new TripValueDeserializer())
@@ -131,5 +137,40 @@ public class TripHistorySingleton {
 
     private File getTripsFile() throws IOException {
         return fileSystemSingleton.createOrGetFile(fileSystemSingleton.getCarduinoRootFolder(), TRIPS_FILE_NAME);
+    }
+
+    public static void invalidate() {
+        instance = null;
+    }
+
+    public synchronized void stopTrip() {
+        Trip current = getCurrentTrip();
+        if (current != null && current.isStarted()) {
+            current.stopTrip();
+            try {
+                backupTrips();
+            } catch (IOException e) {
+                LoggerUtilities.logMessage("TripHistory", "save failed on stopTrip");
+            }
+        }
+    }
+
+    public boolean tripBackupAvailable() {
+        try {
+            File f = getTripsFile();
+            return f != null && f.exists() && f.length() > 0;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public static String convertStreamToString(FileInputStream fis) throws IOException {
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = fis.read(buffer)) != -1) {
+            baos.write(buffer, 0, len);
+        }
+        return baos.toString("UTF-8");
     }
 }

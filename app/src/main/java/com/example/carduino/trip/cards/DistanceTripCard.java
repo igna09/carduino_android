@@ -25,9 +25,12 @@ public class DistanceTripCard extends TripCard {
 
     @Override
     public void updateCard(TripValue value) {
-        if(value == null)
-            return;
         TextView avgTextView = getCardView().findViewById(R.id.value);
+        if (value == null) {
+            // Ripristina la UI allo stato iniziale/zero
+            avgTextView.setText("-");
+            return;
+        }
         avgTextView.setText(getTransformedValue(value.getSum() != null ? value.getSum().toString() : null));
         avgTextView.requestLayout();
     }

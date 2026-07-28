@@ -2,42 +2,30 @@ package com.example.carduino.carduino;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.carduino.R;
-import com.example.carduino.canbus.fragments.Canbus;
 import com.example.carduino.carstatus.Carstatus;
 import com.example.carduino.services.ArduinoService;
 import com.example.carduino.settings.SettingsEnum;
-import com.example.carduino.settings.fragments.Settings;
-import com.example.carduino.shared.MyApplication;
 import com.example.carduino.shared.models.carstatus.propertychangelisteners.PropertyChangeListener;
-import com.example.carduino.shared.singletons.ContextsSingleton;
 import com.example.carduino.shared.singletons.SettingsSingleton;
 import com.example.carduino.shared.singletons.SharedDataSingleton;
-import com.example.carduino.shared.singletons.TripSingleton;
 import com.example.carduino.shared.utilities.LoggerUtilities;
 import com.example.carduino.shared.utilities.PermissionUtilities;
-import com.example.carduino.test.Test;
-import com.example.carduino.trip.Trip;
 import com.google.android.material.navigationrail.NavigationRailView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class CarduinoActivity extends AppCompatActivity {
     class MyMenuItem {

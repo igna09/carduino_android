@@ -25,12 +25,16 @@ public class AvgMaxTripCard extends TripCard {
 
     @Override
     public void updateCard(TripValue value) {
-        if(value == null)
-            return;
         TextView avgTextView = getCardView().findViewById(R.id.avg_value);
+        TextView maxTextView = getCardView().findViewById(R.id.max_value);
+        if (value == null) {
+            // Ripristina la UI allo stato iniziale/zero
+            avgTextView.setText("-");
+            maxTextView.setText("-");
+            return;
+        }
         avgTextView.setText(getTransformedValue(value.getAverage() != null ? value.getAverage().toString() : null));
         avgTextView.requestLayout();
-        TextView maxTextView = getCardView().findViewById(R.id.max_value);
         maxTextView.setText(getTransformedValue(value.getMax() != null ? value.getMax().toString() : null));
         maxTextView.requestLayout();
     }
