@@ -138,8 +138,8 @@ public class ArduinoService extends Service implements SerialListener {
                     } else if(counter % 15 == 0 && counter % 2 == 1) {
                         onArduinoMessage("ENGINE_RPM;3000;");
                     }
-                    onArduinoMessage("SPEED;"+getIntegerRandomNumber(100, 130));
-                    onArduinoMessage("FUEL_CONSUMPTION;"+getFloatRandomNumber(10, 20));
+                    /*onArduinoMessage("SPEED;"+getIntegerRandomNumber(100, 130));
+                    onArduinoMessage("FUEL_CONSUMPTION;"+getFloatRandomNumber(10, 20));*/
 //                    onArduinoMessage("47;" + getIntegerRandomNumber(0, 200));
                     Thread.sleep(1000);
                     counter++;
