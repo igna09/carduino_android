@@ -35,7 +35,7 @@ public enum Event implements BaseEnum {
     BATTERY_VOLTAGE(0x22, EventCategory.SENSOR, SensorCategoryExecutor.class, PayloadType.FLOAT),
     SPEED_LIMIT_SET(0x2F, EventCategory.CONTROL, SpeedLimitExecutor.class, PayloadType.UINT8),
     LONG_PRESS(0x29, EventCategory.CONTROL, LongPressExecutor.class),
-    CRUISE_STATUS(0x30, EventCategory.CONTROL, CruiseExecutor.class, PayloadType.FLOAT);
+    CRUISE_STATUS(0x30, EventCategory.CONTROL, CruiseExecutor.class, PayloadType.UINT8);
 
     private final int id;
     private final EventCategory category;

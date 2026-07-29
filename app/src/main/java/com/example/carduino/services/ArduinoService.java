@@ -144,6 +144,9 @@ public class ArduinoService extends Service implements SerialListener {
                     /*if(counter % 15 == 0) {
                         onArduinoMessage("48;" + getIntegerRandomNumber(0, 2));
                     }*/
+                    /*if(counter % 10 == 0) {
+                        onArduinoMessage("CRUISE_STATUS;" + getIntegerRandomNumber(0, 5) + ".0");
+                    }*/
                     Thread.sleep(1000);
                     counter++;
                 } catch (InterruptedException e) {
