@@ -45,7 +45,8 @@ public enum CarStatusEnum implements BaseEnum {
     IS_REVERSE(0x10, Category.CAR, ValueBoolean.class),
     IS_KEY_ON(0x11, Category.CAR, ValueBoolean.class),
     SPEED_LIMIT(0x12, Category.CAR, KmhSpeed.class),
-    CRUISE_STATUS(0x13, Category.CAR, ValueString.class);
+    CRUISE_STATUS(0x13, Category.CAR, ValueString.class),
+    INTERNAL_PRESSURE(0x14, Category.CAR, BarPressure.class);
 
     private enum Category {
         ENGINE,
