@@ -335,8 +335,8 @@ public class ArduinoService extends Service implements SerialListener {
     }
 
     public void onSerialIoError(Exception e) {
-        LoggerUtilities.logMessage("ArduinoService::onSerialIoError()", "");
-//        LoggerUtilities.logException(e);
+        LoggerUtilities.logMessage("ArduinoService::onSerialIoError()", e.getMessage());
+        LoggerUtilities.logException(e);
         if(connected == CarduinoActivity.Connected.True) {
             synchronized (this) {
                 connected = CarduinoActivity.Connected.False;

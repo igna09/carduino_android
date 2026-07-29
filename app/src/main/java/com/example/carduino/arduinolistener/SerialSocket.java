@@ -37,6 +37,7 @@ public class SerialSocket implements SerialInputOutputManager.Listener {
         disconnectBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                LoggerUtilities.logMessage("BroadcastReceiver::disconnectBroadcastReceiver");
                 if (listener != null)
                     listener.onSerialIoError(new IOException("background disconnect"));
                 disconnect(); // disconnect now, else would be queued until UI re-attached
@@ -102,6 +103,7 @@ public class SerialSocket implements SerialInputOutputManager.Listener {
 
     @Override
     public void onRunError(Exception e) {
+        LoggerUtilities.logMessage("SerialSocket::onRunError", "");
         if (listener != null)
             listener.onSerialIoError(e);
     }

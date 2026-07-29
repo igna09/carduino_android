@@ -19,6 +19,6 @@ public class LoggerUtilities {
     }
     public static void logException(Exception e) {
         LoggerSingleton.getInstance().logException(e);
-        e.printStackTrace();
+        //e.printStackTrace();
     }
 }
