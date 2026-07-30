@@ -13,7 +13,8 @@ enum CruiseState {
     ACTIVE(2),
     BRAKE(3),
     CLUTCH(4),
-    PAUSED(5);
+    PAUSED(5),
+    ERROR(6);
 
     private final int code;
 
